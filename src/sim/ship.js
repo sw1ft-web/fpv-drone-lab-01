@@ -10,11 +10,7 @@ export class Ship extends Entity {
   #hp = 100;
 
   constructor(pos = { x: 0, y: 0 }) {
-    super({
-      pos,
-      radius: 24,
-      kind: "ship",
-    });
+    super({ pos, radius: 24, kind: "ship" });
     this.thrust = 0;
     this.score = 0;
     this.respawnTimer = 0;
@@ -47,7 +43,6 @@ export class Ship extends Entity {
 
     if (left) this.angle -= ROTATION_SPEED * dt;
     if (right) this.angle += ROTATION_SPEED * dt;
-
     this.thrust = accelerating ? 1 : 0;
 
     if (accelerating) {
@@ -70,9 +65,7 @@ export class Ship extends Entity {
     this.pos.x += this.vel.x * dt;
     this.pos.y += this.vel.y * dt;
 
-    if (input.justPressed("Space") && this.fireCooldown <= 0) {
-      this.fire(world);
-    }
+    if (input.justPressed("Space") && this.fireCooldown <= 0) this.fire(world);
   }
 
   fire(world) {
@@ -82,31 +75,24 @@ export class Ship extends Entity {
     const nose = Vector2.fromAngle(this.angle, this.radius + 8);
     const inherited = new Vector2(this.vel.x, this.vel.y);
     const bullet = new Bullet(
-      {
-        x: this.pos.x + nose.x,
-        y: this.pos.y + nose.y,
-      },
-      {
-        x: inherited.x + nose.x * 3.2,
-        y: inherited.y + nose.y * 3.2,
-      },
+      { x: this.pos.x + nose.x, y: this.pos.y + nose.y },
+      { x: inherited.x + nose.x * 3.2, y: inherited.y + nose.y * 3.2 },
     );
 
     world.spawn(bullet);
     this.fireCooldown = this.rapidFire > 0 ? 0.09 : 0.22;
+    world.emit("fired", { shipId: this.id, bulletId: bullet.id });
     return bullet;
   }
 
   takeDamage(amount, world) {
     if (this.respawnTimer > 0 || this.invulnerable > 0) return false;
-
     if (this.shield > 0) {
       this.shield = Math.max(0, this.shield - 1.5);
       return false;
     }
 
     this.#hp -= amount;
-
     if (this.#hp <= 0) {
       this.#hp = 0;
       this.destroy(world);
@@ -116,9 +102,9 @@ export class Ship extends Entity {
 
   destroy(world) {
     if (this.respawnTimer > 0) return;
-
     const { Explosion } = world.classes;
     world.spawn(new Explosion({ x: this.pos.x, y: this.pos.y }, 18));
+    world.emit("exploded", { kind: "ship", id: this.id, x: this.pos.x, y: this.pos.y });
     this.respawnTimer = 2;
     this.vel.x = 0;
     this.vel.y = 0;

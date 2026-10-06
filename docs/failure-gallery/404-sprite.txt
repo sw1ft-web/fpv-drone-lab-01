@@ -1,0 +1,2 @@
+404 sprite: HttpError: HTTP 404 Not Found
+Recovered: 4xx is not retried; loading UI shows Retry and the page stays responsive.

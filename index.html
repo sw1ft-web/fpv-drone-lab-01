@@ -3,15 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FPV Drone — Lab 02</title>
+    <title>FPV Drone — Lab 03 Async JavaScript</title>
   </head>
   <body>
     <main id="game">
       <canvas id="gameCanvas" aria-label="FPV drone arena"></canvas>
 
-      <section class="hud">
-        <h1>FPV DRONE — LAB 02</h1>
+      <section id="loadingPanel" class="panel loading-panel">
+        <p id="loadingMessage">Ready to load async assets.</p>
+        <button id="startLoading" class="primary-button">Start loading</button>
+        <button id="retryLoading" class="primary-button" hidden>Retry</button>
+        <small>First click creates/resumes AudioContext; asset decoding happens during loading.</small>
+      </section>
+
+      <section id="lobby" class="panel lobby" hidden>
+        <div class="eyebrow">ASYNC HTTP LOBBY</div>
+        <h1>Join a room</h1>
+        <form id="lobbyForm">
+          <label class="field">
+            <span>Player name</span>
+            <input id="playerName" name="playerName" maxlength="18" value="Pilot" autocomplete="off" />
+          </label>
+          <div class="lobby-head">
+            <span>Rooms</span>
+            <button id="refreshRooms" type="button" class="ghost-button">Refresh</button>
+          </div>
+          <div id="roomList" class="room-list"></div>
+          <p id="lobbyStatus" class="status">Waiting for /api/rooms…</p>
+          <button class="primary-button" type="submit">Join & start local game</button>
+        </form>
+
+        <details id="failureGallery" class="failure-gallery">
+          <summary>Failure gallery / test recovery</summary>
+          <div class="failure-actions">
+            <button type="button" data-failure="404">404 sprite</button>
+            <button type="button" data-failure="timeout">Network timeout</button>
+            <button type="button" data-failure="abort">Abort mid-request</button>
+            <button type="button" data-failure="json">Broken JSON</button>
+          </div>
+          <pre id="failureOutput">Choose a failure scenario. The app should recover without crashing.</pre>
+        </details>
+      </section>
+
+      <section id="hud" class="hud" hidden>
+        <h1>FPV DRONE — LAB 03</h1>
         <div class="stats">
+          <span>Pilot: <b id="playerNameHud">—</b></span>
+          <span>Room: <b id="roomName">—</b></span>
           <span>HP: <b id="hp">100/100</b></span>
           <span>Score: <b id="score">0</b></span>
           <span>Entities: <b id="entities">0</b></span>
@@ -22,11 +60,10 @@
         <div class="controls">
           <span><b>W / ↑</b> — thrust</span>
           <span><b>A / D</b> — rotate</span>
-          <span><b>F</b> — fire</span>
-          <span><b>Space</b> — fire/cooldown action</span>
-          <span><b>0–3</b> — experiments</span>
+          <span><b>F</b> — fire + Web Audio event</span>
+          <span><b>Space</b> — brake / fire action</span>
         </div>
-        <div id="experiment" class="experiment"></div>
+        <div id="eventStatus" class="experiment">Event bus ready</div>
       </section>
 
       <div class="crosshair"></div>

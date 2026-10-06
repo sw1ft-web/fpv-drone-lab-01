@@ -1,0 +1,10 @@
+{
+  "id": "arena-neon",
+  "name": "Neon Grid",
+  "asteroids": 8,
+  "pickups": 2,
+  "gridSize": 50,
+  "background": "#071019",
+  "grid": "rgba(100, 210, 240, 0.10)",
+  "accent": "#64e7ff"
+}

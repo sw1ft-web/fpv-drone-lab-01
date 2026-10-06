@@ -1,0 +1,49 @@
+{
+  "sprites": [
+    {
+      "id": "ship",
+      "url": "/assets/sprites/ship-sheet.png?labDelay=110",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 4
+    },
+    {
+      "id": "asteroid",
+      "url": "/assets/sprites/asteroid-sheet.png?labDelay=260",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 4
+    },
+    {
+      "id": "bullet",
+      "url": "/assets/sprites/bullet-sheet.png?labDelay=170",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 2
+    }
+  ],
+  "audio": [
+    {
+      "id": "fired",
+      "url": "/assets/audio/shoot.wav?labDelay=220"
+    },
+    {
+      "id": "hit",
+      "url": "/assets/audio/hit.wav?labDelay=340"
+    },
+    {
+      "id": "exploded",
+      "url": "/assets/audio/explosion.wav?labDelay=290"
+    }
+  ],
+  "json": [
+    {
+      "id": "arena-neon",
+      "url": "/assets/data/arena-neon.json?labDelay=180"
+    },
+    {
+      "id": "arena-training",
+      "url": "/assets/data/arena-training.json?labDelay=310"
+    }
+  ]
+}

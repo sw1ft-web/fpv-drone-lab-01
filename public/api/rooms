@@ -1,0 +1,26 @@
+{
+  "rooms": [
+    {
+      "id": "kyiv-alpha",
+      "name": "Kyiv Alpha",
+      "players": 2,
+      "maxPlayers": 6,
+      "arenaId": "arena-neon"
+    },
+    {
+      "id": "training-01",
+      "name": "Training 01",
+      "players": 1,
+      "maxPlayers": 4,
+      "arenaId": "arena-training"
+    },
+    {
+      "id": "night-run",
+      "name": "Night Run",
+      "players": 4,
+      "maxPlayers": 8,
+      "arenaId": "arena-neon"
+    }
+  ],
+  "updatedAt": "2026-10-06T19:00:00Z"
+}

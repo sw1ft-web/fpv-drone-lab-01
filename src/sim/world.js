@@ -1,9 +1,10 @@
 import { resolveCollisions } from "./collision.js";
 
-export class World {
+export class World extends EventTarget {
   #entities = new Map();
 
   constructor(width, height, classes) {
+    super();
     this.width = width;
     this.height = height;
     this.classes = classes;
@@ -24,6 +25,15 @@ export class World {
     return this.#entities.get(id);
   }
 
+  emit(type, detail = {}) {
+    this.dispatchEvent(new CustomEvent(type, { detail }));
+  }
+
+  addScore(points, reason = "game") {
+    this.score += points;
+    this.emit("scoreChanged", { score: this.score, points, reason });
+  }
+
   *[Symbol.iterator]() {
     yield* this.#entities.values();
   }
@@ -36,12 +46,10 @@ export class World {
 
   step(dt, input) {
     const entitiesAtStart = [...this];
-
     for (const entity of entitiesAtStart) {
       if (!entity.alive) continue;
       entity.update(dt, this, input);
     }
-
     resolveCollisions(this);
     this.#sweep();
   }
