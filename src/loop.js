@@ -24,11 +24,12 @@ export function createLoop({ step = 1 / 60, simulate, render, onStats = () => {}
     last = now;
     accumulator += frameDelta;
 
-    
+    let stepsThisFrame = 0;
     while (accumulator >= step) {
       simulate(step);
       accumulator -= step;
       stepCount += 1;
+      stepsThisFrame += 1;
     }
 
     const alpha = accumulator / step;

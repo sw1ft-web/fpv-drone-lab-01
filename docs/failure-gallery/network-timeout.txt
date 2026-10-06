@@ -1,0 +1,2 @@
+timeout: TimeoutError: The operation was aborted due to timeout
+Recovered: AbortSignal.timeout cancels the request; lobby/game UI remains alive.

@@ -1,0 +1,2 @@
+abort: AbortError: Manual abort
+Recovered: pending fetch rejects cleanly when its controller is aborted.
