@@ -21,7 +21,9 @@ before(async () => {
   url = `ws://127.0.0.1:${wss.address().port}`;
   wss.on("connection", (socket) => {
     sockets.push(socket);
-    socket.on("message", (data) => received.push(JSON.parse(data.toString())));
+    socket.on("message", (data, isBinary) => {
+      if (!isBinary) received.push(JSON.parse(data.toString()));
+    });
   });
 });
 
@@ -53,7 +55,7 @@ test("queues messages while connecting and flushes them in order after the sessi
     ),
     ["join", "chat:one", "chat:two"],
   );
-  assert.ok(received.every((message) => message.v === 0));
+  assert.ok(received.every((message) => message.v === 1));
   connection.close();
 });
 
@@ -66,8 +68,8 @@ test("dispatches server messages by type", async () => {
   connection.connect();
   await opened;
   const serverSide = sockets[before];
-  serverSide.send(JSON.stringify({ v: 0, type: "chat", text: "hello" }));
-  serverSide.send(JSON.stringify({ v: 0, type: "unheard", text: "ignored" }));
+  serverSide.send(JSON.stringify({ v: 1, type: "chat", text: "hello" }));
+  serverSide.send(JSON.stringify({ v: 1, type: "unheard", text: "ignored" }));
   serverSide.send("not json");
   await waitUntil(() => seen.length === 1);
   assert.deepEqual(seen, ["hello"]);
@@ -123,4 +125,61 @@ test("does not reconnect after a fatal close code", async () => {
   assert.equal(connection.state, "closed");
   await new Promise((resolve) => setTimeout(resolve, 60));
   assert.equal(sockets.length, before + 1);
+});
+
+test("delivers binary frames to onBinary and counts bytes", async () => {
+  const connection = new Connection({ url, baseMs: 10 });
+  const frames = [];
+  connection.onBinary((bytes, size) => frames.push([bytes, size]));
+  const opened = nextEvent(connection, "open");
+  const before = sockets.length;
+  connection.connect();
+  await opened;
+  await waitUntil(() => sockets.length > before);
+  sockets.at(-1).send(new Uint8Array([2, 1, 0, 0]));
+  await waitUntil(() => frames.length === 1);
+  assert.deepEqual([...frames[0][0]], [2, 1, 0, 0]);
+  assert.equal(frames[0][1], 4);
+  assert.equal(connection.bytesIn, 4);
+  connection.close();
+});
+
+test("send() accepts ready-made binary frames", async () => {
+  received.length = 0;
+  const binary = [];
+  const before = sockets.length;
+  const connection = new Connection({ url, baseMs: 10 });
+  const opened = nextEvent(connection, "open");
+  connection.connect();
+  await opened;
+  await waitUntil(() => sockets.length > before);
+  sockets.at(-1).on("message", (data, isBinary) => {
+    if (isBinary) binary.push([...data]);
+  });
+  connection.send(new Uint8Array([1, 1, 2, 0]));
+  await waitUntil(() => binary.length === 1);
+  assert.deepEqual(binary[0], [1, 1, 2, 0]);
+  connection.close();
+});
+
+test("setNetwork delays delivery in both directions", async () => {
+  const connection = new Connection({ url, baseMs: 10 });
+  const seen = [];
+  connection.on("chat", () => seen.push(performance.now()));
+  const opened = nextEvent(connection, "open");
+  const before = sockets.length;
+  connection.connect();
+  await opened;
+  await waitUntil(() => sockets.length > before);
+  connection.setNetwork({ latencyMs: 120 });
+  const start = performance.now();
+  sockets.at(-1).send(JSON.stringify({ v: 1, type: "chat", text: "late" }));
+  await waitUntil(() => seen.length === 1);
+  assert.ok(seen[0] - start >= 100, `arrived after ${seen[0] - start} ms`);
+  assert.deepEqual(connection.network, {
+    latencyMs: 120,
+    jitterMs: 0,
+    drop: 0,
+  });
+  connection.close();
 });

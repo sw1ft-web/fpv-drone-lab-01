@@ -1,44 +1,61 @@
-function lerp(a, b, alpha) {
-  return a + (b - a) * alpha;
-}
-
-function lerpAngle(a, b, alpha) {
-  const twoPi = Math.PI * 2;
-  let difference = ((b - a + Math.PI) % twoPi) - Math.PI;
-  if (difference < -Math.PI) difference += twoPi;
-  return a + difference * alpha;
+/**
+ * The arena has a fixed logical size (shared/constants); the canvas shows it
+ * letterboxed in the middle of the window so that the simulation never
+ * depends on the browser size.
+ */
+export function arenaViewport(cssWidth, cssHeight, arenaWidth, arenaHeight) {
+  const scale = Math.min(cssWidth / arenaWidth, cssHeight / arenaHeight);
+  return {
+    scale,
+    x: (cssWidth - arenaWidth * scale) / 2,
+    y: (cssHeight - arenaHeight * scale) / 2,
+    width: arenaWidth,
+    height: arenaHeight,
+  };
 }
 
 export function drawScene(
   ctx,
-  width,
-  height,
-  world,
-  previousShip,
-  currentShip,
-  alpha,
+  cssWidth,
+  cssHeight,
+  view,
+  effects,
   assets,
   arena,
+  size,
   now = performance.now(),
 ) {
-  ctx.clearRect(0, 0, width, height);
-  drawArena(ctx, width, height, arena);
+  const viewport = arenaViewport(cssWidth, cssHeight, size.width, size.height);
+  ctx.clearRect(0, 0, cssWidth, cssHeight);
+  ctx.fillStyle = "#03080d";
+  ctx.fillRect(0, 0, cssWidth, cssHeight);
+  ctx.save();
+  ctx.translate(viewport.x, viewport.y);
+  ctx.scale(viewport.scale, viewport.scale);
+  ctx.beginPath();
+  ctx.rect(0, 0, size.width, size.height);
+  ctx.clip();
+  drawArena(ctx, size.width, size.height, arena);
 
-  const shipView = currentShip
-    ? {
-        x: lerp(previousShip.x, currentShip.pos.x, alpha),
-        y: lerp(previousShip.y, currentShip.pos.y, alpha),
-        angle: lerpAngle(previousShip.angle, currentShip.angle, alpha),
-      }
-    : null;
+  for (const pickup of view.pickups) drawPickup(ctx, pickup, now);
+  for (const asteroid of view.asteroids)
+    drawAsteroid(ctx, asteroid, assets, now);
+  for (const ship of view.ships) drawShip(ctx, ship, assets, now);
+  for (const bullet of view.bullets) drawBullet(ctx, bullet, assets, now);
+  for (const explosion of effects?.explosions ?? [])
+    drawExplosion(ctx, explosion);
+  ctx.restore();
 
-  for (const entity of world) {
-    if (entity.kind === "ship") drawShip(ctx, entity, shipView, assets);
-    if (entity.kind === "bullet") drawBullet(ctx, entity, assets, now);
-    if (entity.kind === "asteroid") drawAsteroid(ctx, entity, assets, now);
-    if (entity.kind === "pickup") drawPickup(ctx, entity);
-    if (entity.kind === "explosion") drawExplosion(ctx, entity);
-  }
+  ctx.save();
+  ctx.strokeStyle = "rgba(100, 210, 240, 0.35)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(
+    viewport.x,
+    viewport.y,
+    size.width * viewport.scale,
+    size.height * viewport.scale,
+  );
+  ctx.restore();
 }
 
 function drawArena(ctx, width, height, arena = {}) {
@@ -87,12 +104,10 @@ function drawSprite(ctx, sprite, frame, x, y, angle, size) {
   return true;
 }
 
-function drawShip(ctx, entity, interpolated, assets) {
-  const view = interpolated ?? entity.pos;
-  const angle = interpolated?.angle ?? entity.angle;
-  if (!entity.isActive()) {
+function drawShip(ctx, ship, assets, now) {
+  if (!ship.active) {
     ctx.save();
-    ctx.translate(entity.pos.x, entity.pos.y);
+    ctx.translate(ship.x, ship.y);
     ctx.strokeStyle = "rgba(255,255,255,0.25)";
     ctx.beginPath();
     ctx.arc(0, 0, 30, 0, Math.PI * 2);
@@ -101,23 +116,22 @@ function drawShip(ctx, entity, interpolated, assets) {
     return;
   }
 
-  const frame =
-    entity.shield > 0 ? (entity.thrust ? 3 : 2) : entity.thrust ? 1 : 0;
+  const frame = ship.shield ? (ship.thrust ? 3 : 2) : ship.thrust ? 1 : 0;
   if (
     !drawSprite(
       ctx,
       assets.images.get("ship"),
       frame,
-      view.x,
-      view.y,
-      angle,
+      ship.x,
+      ship.y,
+      ship.angle,
       64,
     )
   ) {
     ctx.save();
-    ctx.translate(view.x, view.y);
-    ctx.rotate(angle);
-    ctx.fillStyle = "#d8e5ea";
+    ctx.translate(ship.x, ship.y);
+    ctx.rotate(ship.angle);
+    ctx.fillStyle = ship.own ? "#d8e5ea" : "#ff9fb0";
     ctx.beginPath();
     ctx.moveTo(22, 0);
     ctx.lineTo(-18, -15);
@@ -127,12 +141,20 @@ function drawShip(ctx, entity, interpolated, assets) {
     ctx.fill();
     ctx.restore();
   }
-
-  if (entity.invulnerable > 0) {
+  if (!ship.own) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 122, 144, 0.8)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(ship.x, ship.y, 34, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+  if (ship.invulnerable && Math.floor(now / 120) % 2 === 0) {
     ctx.save();
     ctx.strokeStyle = "rgba(255,255,255,0.5)";
     ctx.beginPath();
-    ctx.arc(entity.pos.x, entity.pos.y, entity.radius + 8, 0, Math.PI * 2);
+    ctx.arc(ship.x, ship.y, 32, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   }
@@ -145,8 +167,8 @@ function drawBullet(ctx, bullet, assets, now) {
       ctx,
       assets.images.get("bullet"),
       frame,
-      bullet.pos.x,
-      bullet.pos.y,
+      bullet.x,
+      bullet.y,
       0,
       24,
     )
@@ -155,47 +177,37 @@ function drawBullet(ctx, bullet, assets, now) {
   ctx.save();
   ctx.fillStyle = "#ffd166";
   ctx.beginPath();
-  ctx.arc(bullet.pos.x, bullet.pos.y, bullet.radius, 0, Math.PI * 2);
+  ctx.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
 
 function drawAsteroid(ctx, asteroid, assets, now) {
   const frame = Math.floor(now / 260 + asteroid.id) % 4;
-  if (
-    drawSprite(
-      ctx,
-      assets.images.get("asteroid"),
-      frame,
-      asteroid.pos.x,
-      asteroid.pos.y,
-      asteroid.angle,
-      asteroid.radius * 2.35,
-    )
-  ) {
-    if (asteroid.homing) {
-      ctx.save();
-      ctx.strokeStyle = "#ff7a90";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(
-        asteroid.pos.x,
-        asteroid.pos.y,
-        asteroid.radius + 5,
-        0,
-        Math.PI * 2,
-      );
-      ctx.stroke();
-      ctx.restore();
-    }
-    return;
+  drawSprite(
+    ctx,
+    assets.images.get("asteroid"),
+    frame,
+    asteroid.x,
+    asteroid.y,
+    asteroid.angle,
+    asteroid.radius * 2.35,
+  );
+  if (asteroid.homing) {
+    ctx.save();
+    ctx.strokeStyle = "#ff7a90";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(asteroid.x, asteroid.y, asteroid.radius + 5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
   }
 }
 
-function drawPickup(ctx, pickup) {
+function drawPickup(ctx, pickup, now) {
   ctx.save();
-  ctx.translate(pickup.pos.x, pickup.pos.y);
-  ctx.rotate(pickup.phase);
+  ctx.translate(pickup.x, pickup.y);
+  ctx.rotate(now / 600);
   ctx.strokeStyle = pickup.pickupType === "shield" ? "#66ffcc" : "#c77dff";
   ctx.lineWidth = 3;
   ctx.strokeRect(-9, -9, 18, 18);
@@ -209,10 +221,8 @@ function drawExplosion(ctx, explosion) {
     ctx.globalAlpha = Math.max(0, particle.life / 0.65);
     ctx.fillStyle = "#ff9f43";
     ctx.beginPath();
-    ctx.arc(particle.pos.x, particle.pos.y, particle.size, 0, Math.PI * 2);
+    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 }
-
-export { lerp, lerpAngle };

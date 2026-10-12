@@ -34,13 +34,14 @@ export class LatencyInjector {
     return this.latencyMs > 0 || this.jitterMs > 0 || this.drop > 0;
   }
 
-  send(payload, deliver) {
+  /** `reliable` messages still get delay but are never dropped (control traffic on a real WebSocket). */
+  send(payload, deliver, { reliable = false } = {}) {
     this.sent += 1;
     if (!this.active) {
       deliver(payload);
       return;
     }
-    if (this.drop > 0 && this.random() < this.drop) {
+    if (!reliable && this.drop > 0 && this.random() < this.drop) {
       this.dropped += 1;
       return;
     }

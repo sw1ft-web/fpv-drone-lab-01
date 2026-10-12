@@ -12,13 +12,10 @@ import { mountChat } from "./chat/panel.js";
 import { mountLobby } from "./lobby/view.js";
 import { attachHudEvents } from "./hud.js";
 import { installFailureGallery } from "./debug/failures.js";
-import { World } from "./sim/world.js";
-import { Ship } from "./sim/ship.js";
-import { Bullet } from "./sim/bullet.js";
-import { Asteroid } from "./sim/asteroid.js";
-import { Pickup } from "./sim/pickup.js";
-import { Explosion } from "./sim/explosion.js";
-import { createHomingBehavior } from "./sim/homing.js";
+import { GameClient } from "./net/gameclient.js";
+import { mountNetgraph } from "./net/netgraph.js";
+import { Effects } from "./render/effects.js";
+import { commandToBits } from "@fpv/shared";
 
 const canvas = document.querySelector("#gameCanvas");
 const loadingPanel = document.querySelector("#loadingPanel");
@@ -29,6 +26,7 @@ const lobbyRoot = document.querySelector("#lobby");
 const hudRoot = document.querySelector("#hud");
 const failureRoot = document.querySelector("#failureGallery");
 const chatRoot = document.querySelector("#chat");
+const netgraphRoot = document.querySelector("#netgraph");
 
 const stepsEl = document.querySelector("#steps");
 const framesEl = document.querySelector("#frames");
@@ -47,17 +45,27 @@ const lobby = new Lobby();
 const lobbyView = mountLobby(lobby, lobbyRoot);
 installFailureGallery(failureRoot);
 
-const classes = { Ship, Bullet, Asteroid, Pickup, Explosion };
+const effects = new Effects();
 let assets = null;
-let world = null;
-let ship = null;
+let game = null;
 let arena = null;
+let arenaSize = { width: 1600, height: 900 };
 let loop = null;
-let previousShip = null;
 let loadingController = null;
 let detachHud = null;
+let detachEffects = null;
+let netgraph = null;
 let session = null;
 let chat = null;
+
+/** `?lat=80&jitter=20&drop=0.05&codec=json` simulates a bad network and picks the wire format. */
+const params = new URLSearchParams(location.search);
+const networkFromUrl = () => ({
+  latencyMs: Number(params.get("lat") ?? 0) || 0,
+  jitterMs: Number(params.get("jitter") ?? 0) || 0,
+  drop: Math.min(1, Number(params.get("drop") ?? 0) || 0),
+});
+const codecFromUrl = () => (params.get("codec") === "json" ? "json" : "binary");
 
 function renderLoading(state = {}) {
   drawLoadingScreen(ctx.context, ctx.cssWidth, ctx.cssHeight, state);
@@ -126,7 +134,12 @@ lobby.addEventListener("joined", async (event) => {
   try {
     session?.connection.close();
     chat?.destroy();
-    session = await joinRoom({ roomId: room.id, name: playerName });
+    session = await joinRoom({
+      roomId: room.id,
+      name: playerName,
+      codec: codecFromUrl(),
+      network: networkFromUrl(),
+    });
   } catch (error) {
     // Could not join (room full, server down...): go back to the lobby with the reason.
     lobbyView.show();
@@ -144,27 +157,23 @@ lobby.addEventListener("joined", async (event) => {
 function startGame({ room, playerName }) {
   loop?.stop();
   detachHud?.();
+  detachEffects?.();
+  game?.destroy();
   audio.detach();
 
+  const { connection, welcome } = session;
   arena = assets.json.get(room.arenaId) ?? {};
-  world = new World(ctx.cssWidth, ctx.cssHeight, classes);
-  ship = new Ship({ x: ctx.cssWidth / 2, y: ctx.cssHeight / 2 });
-  world.spawn(ship);
-
-  for (let i = 0; i < (arena.asteroids ?? 7); i += 1) spawnAsteroid();
-  spawnInitialPickups(arena.pickups ?? 1);
-
-  const homingAsteroid = new Asteroid(
-    { x: ctx.cssWidth * 0.8, y: ctx.cssHeight * 0.25 },
-    { x: -25, y: 10 },
-    30,
-  );
-  homingAsteroid.homing = createHomingBehavior("ship", 1.1);
-  world.spawn(homingAsteroid);
-
-  previousShip = { x: ship.pos.x, y: ship.pos.y, angle: ship.angle };
-  audio.attach(world);
-  detachHud = attachHudEvents(world, { scoreEl, eventEl });
+  arenaSize = welcome.arena ?? arenaSize;
+  game = new GameClient({ connection, welcome });
+  audio.attach(game);
+  detachHud = attachHudEvents(game, { scoreEl, eventEl });
+  const onExploded = (event) => {
+    const { x, y, kind } = event.detail;
+    if (x !== undefined) effects.explode(x, y, kind === "ship" ? 28 : 14);
+  };
+  game.addEventListener("exploded", onExploded);
+  detachEffects = () => game?.removeEventListener("exploded", onExploded);
+  netgraph = mountNetgraph(netgraphRoot, { connection, game });
 
   roomNameEl.textContent = room.name;
   playerNameEl.textContent = playerName;
@@ -175,77 +184,54 @@ function startGame({ room, playerName }) {
   loop.start();
 }
 
-function spawnInitialPickups(count) {
-  const types = ["shield", "rapid-fire"];
-  for (let i = 0; i < count; i += 1) {
-    world.spawn(
-      new Pickup(
-        {
-          x: ctx.cssWidth * (0.3 + i * 0.3),
-          y: ctx.cssHeight * (0.35 + (i % 2) * 0.25),
-        },
-        types[i % types.length],
-      ),
-    );
-  }
-}
-
-function spawnAsteroid() {
-  const margin = 40;
-  const asteroid = new Asteroid(
-    {
-      x: margin + Math.random() * Math.max(1, ctx.cssWidth - margin * 2),
-      y: margin + Math.random() * Math.max(1, ctx.cssHeight - margin * 2),
-    },
-    {
-      x: (Math.random() - 0.5) * 90,
-      y: (Math.random() - 0.5) * 90,
-    },
-  );
-  world.spawn(asteroid);
-}
-
+/** One 60 Hz step: sample the keyboard into a command, predict locally, queue it for the server. */
 function simulate(dt) {
-  if (!world || !ship) return;
-  previousShip.x = ship.pos.x;
-  previousShip.y = ship.pos.y;
-  previousShip.angle = ship.angle;
-  world.width = ctx.cssWidth;
-  world.height = ctx.cssHeight;
-  world.step(dt, input);
-
-  if (
-    [...world.ofKind("asteroid")].length <
-    Math.max(4, (arena.asteroids ?? 7) - 1)
-  ) {
-    spawnAsteroid();
-  }
+  if (!game) return;
+  game.step(
+    commandToBits({
+      left: input.isDown("KeyA") || input.isDown("ArrowLeft"),
+      right: input.isDown("KeyD") || input.isDown("ArrowRight"),
+      thrust: input.isDown("KeyW") || input.isDown("ArrowUp"),
+      brake: input.isDown("Space"),
+      fire: input.isDown("KeyF") || input.justPressed("Space"),
+    }),
+  );
+  effects.update(dt);
 }
 
 function render(alpha, stats) {
+  if (!game) return;
+  const now = performance.now();
+  const view = game.view(alpha, now);
   drawScene(
     ctx.context,
     ctx.cssWidth,
     ctx.cssHeight,
-    world,
-    previousShip,
-    ship,
-    alpha,
+    view,
+    effects,
     assets,
     arena,
+    arenaSize,
+    now,
   );
+  netgraph?.update(now);
   stepsEl.textContent = stats.stepsPerSecond.toFixed(0);
   framesEl.textContent = stats.framesPerSecond.toFixed(0);
   frameTimeEl.textContent = stats.frameTimeMs.toFixed(2);
-  hpEl.textContent = `${ship.hp}/100`;
-  entitiesEl.textContent = String([...world].length);
+  if (view.own) hpEl.textContent = `${view.own.hp}/100`;
+  entitiesEl.textContent = String(
+    view.ships.length +
+      view.bullets.length +
+      view.asteroids.length +
+      view.pickups.length,
+  );
 }
 
 window.addEventListener("keydown", (event) => {
   const typing =
     event.target instanceof HTMLElement && event.target.tagName === "INPUT";
   if (typing) return;
-  if (event.code === "KeyF" && world && ship) ship.fire(world);
+  if (event.code === "KeyN" && netgraph) netgraph.toggle();
   if (event.code === "Enter" && chat) {
     event.preventDefault();
     chat.focusInput();
@@ -253,10 +239,7 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("resize", () => {
-  if (world) {
-    world.width = ctx.cssWidth;
-    world.height = ctx.cssHeight;
-  } else {
+  if (!game) {
     renderLoading({
       label: assets
         ? "Assets loaded"
@@ -264,6 +247,14 @@ window.addEventListener("resize", () => {
     });
   }
 });
+
+window.lab05 = {
+  get game() {
+    return game;
+  },
+  /** e.g. lab05.setNetwork({ latencyMs: 120, jitterMs: 30, drop: 0.05 }) */
+  setNetwork: (network) => session?.connection.setNetwork(network),
+};
 
 window.lab04 = {
   get connection() {

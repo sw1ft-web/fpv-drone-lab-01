@@ -68,3 +68,20 @@ test("drop discards about the requested fraction", () => {
   assert.ok(Math.abs(received / 5000 - 0.8) < 0.03);
   assert.equal(injector.dropped + received, 5000);
 });
+
+test("reliable messages are delayed but never dropped", () => {
+  const clock = virtualClock();
+  const injector = new LatencyInjector({
+    latencyMs: 50,
+    drop: 1,
+    random: () => 0,
+    schedule: clock.schedule,
+    now: clock.now,
+  });
+  const seen = [];
+  injector.send("game", (v) => seen.push(v));
+  injector.send("control", (v) => seen.push(v), { reliable: true });
+  clock.advance(100);
+  assert.deepEqual(seen, ["control"]);
+  assert.equal(injector.dropped, 1);
+});

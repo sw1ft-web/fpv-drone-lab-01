@@ -1,0 +1,160 @@
+{
+  "seconds": 30,
+  "players": 2,
+  "sweep": [
+    {
+      "name": "LAN",
+      "latencyMs": 0,
+      "jitterMs": 0,
+      "drop": 0,
+      "rttMs": 16.7,
+      "mispredictions": 0,
+      "teleports": 1,
+      "maxCorrectionPx": 0,
+      "ownJumpMaxPx": 4.73,
+      "remoteJumpP99Px": 5.65,
+      "remoteJumpMaxPx": 5.77,
+      "noInterpolationJumpP99Px": 11.06,
+      "noInterpolationJumpMaxPx": 11.54,
+      "kbPerSecUp": 2.23,
+      "pendingAtEnd": 2
+    },
+    {
+      "name": "good",
+      "latencyMs": 40,
+      "jitterMs": 5,
+      "drop": 0,
+      "rttMs": 88.8,
+      "mispredictions": 0,
+      "teleports": 1,
+      "maxCorrectionPx": 0,
+      "ownJumpMaxPx": 4.73,
+      "remoteJumpP99Px": 5.65,
+      "remoteJumpMaxPx": 5.77,
+      "noInterpolationJumpP99Px": 11.06,
+      "noInterpolationJumpMaxPx": 11.54,
+      "kbPerSecUp": 4.75,
+      "pendingAtEnd": 6
+    },
+    {
+      "name": "100 ms",
+      "latencyMs": 100,
+      "jitterMs": 20,
+      "drop": 0,
+      "rttMs": 248.2,
+      "mispredictions": 0,
+      "teleports": 2,
+      "maxCorrectionPx": 0,
+      "ownJumpMaxPx": 5.57,
+      "remoteJumpP99Px": 5.65,
+      "remoteJumpMaxPx": 5.77,
+      "noInterpolationJumpP99Px": 13.44,
+      "noInterpolationJumpMaxPx": 22.72,
+      "kbPerSecUp": 10.92,
+      "pendingAtEnd": 14
+    },
+    {
+      "name": "100 ms + 5% loss",
+      "latencyMs": 100,
+      "jitterMs": 20,
+      "drop": 0.05,
+      "rttMs": 312.5,
+      "mispredictions": 0,
+      "teleports": 1,
+      "maxCorrectionPx": 0,
+      "ownJumpMaxPx": 6.03,
+      "remoteJumpP99Px": 5.65,
+      "remoteJumpMaxPx": 5.76,
+      "noInterpolationJumpP99Px": 15.24,
+      "noInterpolationJumpMaxPx": 33.43,
+      "kbPerSecUp": 11.03,
+      "pendingAtEnd": 20
+    },
+    {
+      "name": "200 ms",
+      "latencyMs": 200,
+      "jitterMs": 40,
+      "drop": 0,
+      "rttMs": 448.2,
+      "mispredictions": 0,
+      "teleports": 2,
+      "maxCorrectionPx": 0,
+      "ownJumpMaxPx": 5.86,
+      "remoteJumpP99Px": 5.66,
+      "remoteJumpMaxPx": 6.39,
+      "noInterpolationJumpP99Px": 19.81,
+      "noInterpolationJumpMaxPx": 33.94,
+      "kbPerSecUp": 11.03,
+      "pendingAtEnd": 26
+    },
+    {
+      "name": "200 ms + 10% loss",
+      "latencyMs": 200,
+      "jitterMs": 40,
+      "drop": 0.1,
+      "rttMs": 514.9,
+      "mispredictions": 0,
+      "teleports": 1,
+      "maxCorrectionPx": 0,
+      "ownJumpMaxPx": 6.03,
+      "remoteJumpP99Px": 5.65,
+      "remoteJumpMaxPx": 5.77,
+      "noInterpolationJumpP99Px": 21.57,
+      "noInterpolationJumpMaxPx": 31.27,
+      "kbPerSecUp": 11.03,
+      "pendingAtEnd": 30
+    }
+  ],
+  "codecs": [
+    {
+      "codec": "json",
+      "kbPerSecDown": 79.86,
+      "kbPerSecUp": 10.92,
+      "snapshotBytes": 2726,
+      "mispredictions": 0,
+      "maxCorrectionPx": 0
+    },
+    {
+      "codec": "binary",
+      "kbPerSecDown": 13.49,
+      "kbPerSecUp": 0.7,
+      "snapshotBytes": 460,
+      "mispredictions": 0,
+      "maxCorrectionPx": 0.0007
+    }
+  ],
+  "interpolation": [
+    {
+      "interpolationDelayMs": 50,
+      "remoteJumpP99Px": 5.72,
+      "remoteJumpMaxPx": 10.79
+    },
+    {
+      "interpolationDelayMs": 100,
+      "remoteJumpP99Px": 5.66,
+      "remoteJumpMaxPx": 6.36
+    },
+    {
+      "interpolationDelayMs": 150,
+      "remoteJumpP99Px": 5.64,
+      "remoteJumpMaxPx": 5.89
+    },
+    {
+      "interpolationDelayMs": 200,
+      "remoteJumpP99Px": 5.64,
+      "remoteJumpMaxPx": 6.04
+    }
+  ],
+  "determinism": {
+    "note": "Math.random() added to integrate(): +-0.4 px of noise per step, independently on client and server",
+    "deterministic": {
+      "mispredictions": 0,
+      "maxCorrectionPx": 0
+    },
+    "withMathRandom": {
+      "mispredictions": 703,
+      "reconciliations": 897,
+      "maxCorrectionPx": 4.123
+    }
+  }
+}

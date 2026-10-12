@@ -17,10 +17,12 @@
     "dev:server": "npm run dev -w server",
     "build": "npm run build -w client",
     "start": "npm run start -w server",
-    "test": "npm test --workspaces --if-present",
+    "test": "npm test --workspaces --if-present && npm run test:netcode",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:netcode": "node --test \"scripts/test/**/*.test.mjs\"",
+    "netcode:sim": "node scripts/netcode-sim.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
