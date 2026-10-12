@@ -1,5 +1,7 @@
 # FPV Drone — multiplayer JavaScript game
 
+[![CI](https://github.com/sw1ft-web/fpv-drone-lab-01/actions/workflows/ci.yml/badge.svg)](https://github.com/sw1ft-web/fpv-drone-lab-01/actions/workflows/ci.yml)
+
 Навчальний проєкт курсу «JavaScript — Build a Multiplayer Game»: космічний (FPV) дог-файт, який росте від локального game loop (Lab 01) до гри з авторитетним сервером, TypeScript, тестами і деплоєм.
 
 ## Структура репозиторію
@@ -9,6 +11,7 @@ client/    Vite-застосунок (canvas, asset loader, lobby, чат)      
 server/    Node.js: HTTP, WebSocket, rooms, match logs             — Lab 04
 shared/    симуляція, протокол (zod), кодеки — код обох сторін      — Lab 05–06
 docs/      звіти по лабораторних, графіки, логи експериментів
+e2e/       Playwright: два браузери проти реального сервера
 scripts/   dev-скрипт, headless-стенд мережі, SVG-графіки
 ```
 

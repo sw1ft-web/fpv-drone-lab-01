@@ -10,12 +10,13 @@ import {
 } from "../assets/http.ts";
 
 /** GET /api/rooms: `{ rooms: [...] }` (a bare array is accepted too). */
-const RoomsResponseSchema = z.union([
+export const RoomsResponseSchema = z.union([
   z.array(RoomInfoSchema).transform((rooms) => ({ rooms, updatedAt: null })),
   z.object({
     rooms: z.array(RoomInfoSchema),
+    // The server sends an ISO-8601 string; older servers sent epoch milliseconds.
     updatedAt: z
-      .number()
+      .union([z.number(), z.iso.datetime().transform((iso) => Date.parse(iso))])
       .nullish()
       .transform((value) => value ?? null),
   }),

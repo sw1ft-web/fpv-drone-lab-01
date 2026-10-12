@@ -194,7 +194,11 @@ async function onJoined({
   }
 
   const { connection, welcome } = joined;
-  chat = mountChat(chatRoot, { connection, playerId: welcome.playerId });
+  chat = mountChat(chatRoot, {
+    connection,
+    playerId: welcome.playerId,
+    welcome,
+  });
   chat.show();
   startGame(joined, { room: welcome.room, playerName });
 }
