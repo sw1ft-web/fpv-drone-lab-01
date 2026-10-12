@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { binaryCodec } from "@fpv/shared/codec";
 import { asSeq } from "@fpv/shared";
 import { CLOSE, parseClientMessage } from "../src/protocol.ts";

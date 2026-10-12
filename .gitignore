@@ -6,3 +6,6 @@ server/.env
 server/logs
 *.ndjson
 .tmp
+coverage
+test-results
+playwright-report

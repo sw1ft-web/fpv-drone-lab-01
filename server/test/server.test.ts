@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { once } from "node:events";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { after, before, describe, test } from "node:test";
+import { afterAll, beforeAll, describe, test } from "vitest";
+import WebSocket from "ws";
 import { z } from "zod";
 import { CLOSE } from "../src/protocol.ts";
 import { connect, startTestServer } from "./helpers.ts";
@@ -40,7 +42,7 @@ const post = (
 
 describe("HTTP API", () => {
   let server: TestServer;
-  before(async () => {
+  beforeAll(async () => {
     server = await startTestServer({ MAX_BODY_BYTES: "256" });
     await mkdir(join(server.config.CLIENT_DIR, "assets"), { recursive: true });
     await writeFile(
@@ -53,7 +55,7 @@ describe("HTTP API", () => {
     );
     await writeFile(join(server.config.CLIENT_DIR, "assets", "x.wav"), "RIFF");
   });
-  after(() => server.stop());
+  afterAll(() => server.stop());
 
   test("GET /health", async () => {
     const response = await fetch(`${server.origin}/health`);
@@ -163,7 +165,7 @@ describe("HTTP API", () => {
 
 describe("WebSocket protocol", () => {
   let server: TestServer;
-  before(async () => {
+  beforeAll(async () => {
     server = await startTestServer({
       JOIN_TIMEOUT_MS: "200",
       MAX_PAYLOAD_BYTES: "512",
@@ -171,7 +173,7 @@ describe("WebSocket protocol", () => {
       RATE_REFILL_PER_SEC: "1",
     });
   });
-  after(() => server.stop());
+  afterAll(() => server.stop());
 
   test("two clients join the same room, see each other and chat", async () => {
     const a = await connect(server.wsUrl);
@@ -255,10 +257,10 @@ describe("WebSocket protocol", () => {
 
 describe("match logs and replays", () => {
   let server: TestServer;
-  before(async () => {
+  beforeAll(async () => {
     server = await startTestServer();
   });
-  after(() => server.stop());
+  afterAll(() => server.stop());
 
   test("a finished room session can be streamed back as NDJSON", async () => {
     const client = await connect(server.wsUrl);
@@ -302,5 +304,36 @@ describe("match logs and replays", () => {
       (await fetch(`${server.origin}/api/replays/missing-1`)).status,
       404,
     );
+  });
+});
+
+describe("heartbeat", () => {
+  test("a client that never answers pings is terminated after two missed pongs", async () => {
+    const server = await startTestServer({ HEARTBEAT_MS: "50" });
+    try {
+      const socket = new WebSocket(server.wsUrl, { autoPong: false });
+      await once(socket, "open");
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("not terminated in time")), 2000),
+      );
+      await Promise.race([once(socket, "close"), timeout]);
+      assert.equal(server.app.stats.heartbeatTerminations, 1);
+    } finally {
+      await server.stop();
+    }
+  });
+
+  test("a client that answers pings stays connected", async () => {
+    const server = await startTestServer({ HEARTBEAT_MS: "50" });
+    try {
+      const socket = new WebSocket(server.wsUrl);
+      await once(socket, "open");
+      await new Promise((done) => setTimeout(done, 400));
+      assert.equal(socket.readyState, WebSocket.OPEN);
+      assert.equal(server.app.stats.heartbeatTerminations, 0);
+      socket.close();
+    } finally {
+      await server.stop();
+    }
   });
 });

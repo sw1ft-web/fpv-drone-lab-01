@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { ARENA_HEIGHT, ARENA_WIDTH, SHIP, SIM_STEP } from "../src/constants.ts";
 import {
   EMPTY_COMMAND,

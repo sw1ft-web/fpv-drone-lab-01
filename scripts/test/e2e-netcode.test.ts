@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { test } from "node:test";
+import { test } from "vitest";
 import WebSocket from "ws";
 import type { CodecName, LatencyOptions } from "../../shared/src/index.ts";
 import { silentLogger } from "../../server/src/logger.ts";
