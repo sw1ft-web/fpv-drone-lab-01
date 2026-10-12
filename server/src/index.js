@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 import { loadConfig } from "./config.js";
 import { createRequestHandler } from "./http.js";
 import { attachMatchLog } from "./log/matchlog.js";
+import { MatchManager } from "./matches.js";
 import { RoomManager } from "./rooms.js";
 import { attachWebSocketServer, createStats } from "./ws.js";
 
@@ -73,12 +74,20 @@ export function createApp(config, { logger = consoleLogger } = {}) {
     });
   }
 
+  let sockets = null;
+  const matches = new MatchManager({
+    roomManager,
+    logger,
+    deliver: (playerId, snapshot) =>
+      sockets.deliverSnapshot(playerId, snapshot),
+  });
   const server = createServer(
-    createRequestHandler({ config, roomManager, stats, logger }),
+    createRequestHandler({ config, roomManager, matches, stats, logger }),
   );
-  const sockets = attachWebSocketServer({
+  sockets = attachWebSocketServer({
     server,
     roomManager,
+    matches,
     config,
     logger,
     stats,
@@ -87,6 +96,7 @@ export function createApp(config, { logger = consoleLogger } = {}) {
   return {
     server,
     roomManager,
+    matches,
     stats,
     listen() {
       return new Promise((resolve, reject) => {
@@ -100,6 +110,7 @@ export function createApp(config, { logger = consoleLogger } = {}) {
     /** Stop accepting connections, close sockets, flush match logs. */
     async close() {
       const closed = new Promise((resolve) => server.close(resolve));
+      matches.close();
       await sockets.close();
       await Promise.all([...matchLogs.values()].map((log) => log.close()));
       server.closeIdleConnections();

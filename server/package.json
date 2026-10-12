@@ -1,7 +1,7 @@
 {
   "name": "@fpv/server",
   "private": true,
-  "version": "4.0.0",
+  "version": "5.0.0",
   "type": "module",
   "main": "src/index.js",
   "scripts": {
@@ -10,6 +10,7 @@
     "test": "node --test \"test/**/*.test.js\""
   },
   "dependencies": {
+    "@fpv/shared": "*",
     "ws": "^8.18.0"
   }
 }

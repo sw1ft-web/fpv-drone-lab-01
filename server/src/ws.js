@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { WebSocketServer } from "ws";
+import { ARENA_HEIGHT, ARENA_WIDTH, SIM_HZ, TICK_HZ } from "@fpv/shared";
+import { getCodec } from "@fpv/shared/codec";
 import { CLOSE, encodeServerMessage, parseClientMessage } from "./protocol.js";
 import { RoomError } from "./rooms.js";
 import { TokenBucket } from "./ratelimit.js";
@@ -13,9 +15,14 @@ const OPEN = 1; // WebSocket.OPEN
  * - non-critical messages (chat) are dropped once the buffer exceeds the limit.
  * Returns true if the message was queued.
  */
-export function safeSend(
+export function safeSend(socket, message, options = {}) {
+  return safeSendEncoded(socket, encodeServerMessage(message), options);
+}
+
+/** Same policy as `safeSend` for an already-encoded frame (string or bytes). */
+export function safeSendEncoded(
   socket,
-  message,
+  data,
   { critical = false, maxBuffered, stats } = {},
 ) {
   if (socket.readyState !== OPEN) return false;
@@ -28,7 +35,10 @@ export function safeSend(
     stats && (stats.droppedMessages += 1);
     return false;
   }
-  socket.send(encodeServerMessage(message));
+  socket.send(data);
+  if (stats)
+    stats.bytesOut +=
+      typeof data === "string" ? Buffer.byteLength(data) : data.byteLength;
   return true;
 }
 
@@ -37,6 +47,10 @@ export function createStats() {
     connections: 0,
     totalConnections: 0,
     messagesIn: 0,
+    bytesIn: 0,
+    inputsIn: 0,
+    snapshotsSent: 0,
+    bytesOut: 0,
     rejected: 0,
     droppedMessages: 0,
     slowClientCloses: 0,
@@ -52,6 +66,7 @@ export function createStats() {
 export function attachWebSocketServer({
   server,
   roomManager,
+  matches,
   config,
   logger = console,
   stats = createStats(),
@@ -110,6 +125,7 @@ export function attachWebSocketServer({
       missedPongs: 0,
       room: null,
       player: null,
+      codec: getCodec("json"),
       bucket: new TokenBucket({
         capacity: config.RATE_CAPACITY,
         refillPerSec: config.RATE_REFILL_PER_SEC,
@@ -154,6 +170,7 @@ export function attachWebSocketServer({
 
     socket.on("message", (data, isBinary) => {
       stats.messagesIn += 1;
+      stats.bytesIn += data.length ?? data.byteLength ?? 0;
       if (!state.bucket.take())
         return reject(CLOSE.RATE_LIMIT, "rate limit exceeded");
 
@@ -177,19 +194,31 @@ export function attachWebSocketServer({
           clearTimeout(joinTimer);
           state.room = room;
           state.player = player;
+          state.codec = getCodec(message.codec);
           socketsByPlayer.set(player.id, socket);
           send(
             socket,
             {
               type: "welcome",
               playerId: player.id,
+              shipId: matches.shipIdOf(room.id, player.id),
               room: room.toJSON(),
               roster: room.roster(),
+              codec: state.codec.name,
+              tickHz: TICK_HZ,
+              simHz: SIM_HZ,
+              arena: { width: ARENA_WIDTH, height: ARENA_HEIGHT },
             },
             true,
           );
           break;
         }
+        case "input":
+          if (!state.room)
+            return reject(CLOSE.BAD_MESSAGE, "join a room first");
+          stats.inputsIn += message.inputs.length;
+          matches.receiveInputs(state.room.id, state.player.id, message.inputs);
+          break;
         case "chat":
           if (!state.room)
             return reject(CLOSE.BAD_MESSAGE, "join a room first");
@@ -224,9 +253,26 @@ export function attachWebSocketServer({
   }, config.HEARTBEAT_MS);
   heartbeat.unref();
 
+  /** Called by the match for every player on every tick. Snapshots are droppable (non-critical). */
+  const deliverSnapshot = (playerId, snapshot) => {
+    const socket = socketsByPlayer.get(playerId);
+    if (!socket) return;
+    const sent = safeSendEncoded(
+      socket,
+      socket.state.codec.encodeSnapshot(snapshot),
+      {
+        critical: false,
+        maxBuffered: config.MAX_BUFFERED_BYTES,
+        stats,
+      },
+    );
+    if (sent) stats.snapshotsSent += 1;
+  };
+
   return {
     wss,
     stats,
+    deliverSnapshot,
     async close() {
       clearInterval(heartbeat);
       for (const socket of wss.clients)

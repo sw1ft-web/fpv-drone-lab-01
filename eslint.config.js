@@ -16,6 +16,15 @@ export default [
     rules: sharedRules,
   },
   {
+    files: ["shared/**/*.{js,mjs}"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: { ...globals.node, ...globals.browser },
+    },
+    rules: sharedRules,
+  },
+  {
     files: [
       "server/**/*.{js,mjs}",
       "client/test/**/*.{js,mjs}",

@@ -1,9 +1,10 @@
 {
   "name": "fpv-drone-labs",
   "private": true,
-  "version": "4.0.0",
+  "version": "5.0.0",
   "type": "module",
   "workspaces": [
+    "shared",
     "client",
     "server"
   ],

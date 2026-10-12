@@ -1,0 +1,16 @@
+{
+  "name": "@fpv/shared",
+  "private": true,
+  "version": "5.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./sim": "./src/sim/index.js",
+    "./codec": "./src/codec/index.js",
+    "./protocol": "./src/protocol/index.js",
+    "./net": "./src/net/latency.js"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\""
+  }
+}
