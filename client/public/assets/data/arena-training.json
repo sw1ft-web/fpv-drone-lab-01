@@ -1,0 +1,10 @@
+{
+  "id": "arena-training",
+  "name": "Training Ring",
+  "asteroids": 5,
+  "pickups": 1,
+  "gridSize": 70,
+  "background": "#0b0d18",
+  "grid": "rgba(179, 140, 255, 0.10)",
+  "accent": "#c69cff"
+}

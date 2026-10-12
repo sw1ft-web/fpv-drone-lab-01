@@ -1,0 +1,12 @@
+{
+  "fileMb": 200,
+  "throttleMbPerSec": 20,
+  "streaming": {
+    "baselineMb": 69.5,
+    "peakMb": 103.7
+  },
+  "buffered": {
+    "baselineMb": 70.6,
+    "peakMb": 272.5
+  }
+}
