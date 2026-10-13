@@ -12,12 +12,14 @@ export function defaultSocketUrl() {
 export function joinRoom({
   roomId,
   name,
+  codec = "json",
+  network = {},
   url = defaultSocketUrl(),
   WebSocketImpl,
   timeoutMs = 8000,
 }) {
-  const connection = new Connection({ url, WebSocketImpl });
-  connection.setSession({ type: "join", roomId, name });
+  const connection = new Connection({ url, WebSocketImpl, network });
+  connection.setSession({ type: "join", roomId, name, codec });
 
   return new Promise((resolve, reject) => {
     const cleanups = [];

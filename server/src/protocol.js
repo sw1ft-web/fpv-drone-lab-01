@@ -1,35 +1,28 @@
+import {
+  CHAT_MAX,
+  CLOSE,
+  CODEC_NAMES,
+  FATAL_CLOSE_CODES,
+  NAME_MAX,
+  PROTOCOL_VERSION,
+} from "@fpv/shared/protocol";
+import {
+  CodecError,
+  FRAME_TYPE,
+  binaryCodec,
+  jsonCodec,
+  peekFrameType,
+} from "@fpv/shared/codec";
+
 /**
- * Protocol v0: versioned JSON messages `{ v: 0, type, ... }`.
+ * Protocol v1: versioned JSON control messages `{ v: 1, type, ... }` plus game
+ * messages (`input`), which travel as JSON text or as binary frames depending
+ * on the codec the client chose in `join`.
  * Every message from a client is untrusted: it is validated here before it
- * reaches any room logic.
+ * reaches any room or match logic.
  */
-export const PROTOCOL_VERSION = 0;
+export { CHAT_MAX, CLOSE, FATAL_CLOSE_CODES, NAME_MAX, PROTOCOL_VERSION };
 
-export const CLOSE = Object.freeze({
-  NORMAL: 1000,
-  GOING_AWAY: 1001,
-  TOO_BIG: 1009,
-  BAD_MESSAGE: 4000,
-  UNKNOWN_TYPE: 4001,
-  JOIN_TIMEOUT: 4002,
-  RATE_LIMIT: 4003,
-  ROOM_UNAVAILABLE: 4004,
-  SLOW_CLIENT: 4005,
-});
-
-/** Close codes after which the client must not reconnect automatically. */
-export const FATAL_CLOSE_CODES = new Set([
-  CLOSE.TOO_BIG,
-  CLOSE.BAD_MESSAGE,
-  CLOSE.UNKNOWN_TYPE,
-  CLOSE.JOIN_TIMEOUT,
-  CLOSE.RATE_LIMIT,
-  CLOSE.ROOM_UNAVAILABLE,
-  CLOSE.SLOW_CLIENT,
-]);
-
-export const NAME_MAX = 18;
-export const CHAT_MAX = 200;
 const ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/;
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
@@ -56,8 +49,18 @@ export function isValidRoomId(value) {
  * @returns {{ok: true, message: object} | {ok: false, code: number, reason: string}}
  */
 export function parseClientMessage(raw, isBinary = false) {
-  if (isBinary)
-    return fail(CLOSE.BAD_MESSAGE, "binary frames are not supported");
+  if (isBinary) {
+    try {
+      const bytes = Array.isArray(raw) ? Buffer.concat(raw) : raw;
+      if (peekFrameType(bytes) !== FRAME_TYPE.INPUT)
+        return fail(CLOSE.BAD_MESSAGE, "unexpected binary frame type");
+      return ok({ type: "input", ...binaryCodec.decodeInput(bytes) });
+    } catch (error) {
+      if (error instanceof CodecError)
+        return fail(CLOSE.BAD_MESSAGE, `bad input: ${error.message}`);
+      throw error;
+    }
+  }
 
   let data;
   try {
@@ -81,7 +84,23 @@ export function parseClientMessage(raw, isBinary = false) {
         return fail(CLOSE.BAD_MESSAGE, "invalid roomId");
       if (!isValidName(data.name))
         return fail(CLOSE.BAD_MESSAGE, "invalid name");
-      return ok({ type: "join", roomId: data.roomId, name: data.name.trim() });
+      if (data.codec !== undefined && !CODEC_NAMES.includes(data.codec)) {
+        return fail(CLOSE.BAD_MESSAGE, "invalid codec");
+      }
+      return ok({
+        type: "join",
+        roomId: data.roomId,
+        name: data.name.trim(),
+        codec: data.codec ?? "json",
+      });
+    case "input":
+      try {
+        return ok({ type: "input", ...jsonCodec.decodeInput(raw.toString()) });
+      } catch (error) {
+        if (error instanceof CodecError)
+          return fail(CLOSE.BAD_MESSAGE, `bad input: ${error.message}`);
+        throw error;
+      }
     case "chat":
       if (
         typeof data.text !== "string" ||
@@ -107,4 +126,10 @@ export function encodeServerMessage(message) {
 }
 
 /** Server -> client message types (documented for the client dispatcher). */
-export const SERVER_MESSAGE_TYPES = ["welcome", "roster", "chat", "error"];
+export const SERVER_MESSAGE_TYPES = [
+  "welcome",
+  "roster",
+  "chat",
+  "error",
+  "snapshot",
+];

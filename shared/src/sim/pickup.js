@@ -1,16 +1,16 @@
 import { Entity } from "./entity.js";
 
+export const PICKUP_TYPES = ["shield", "rapid-fire"];
+
 export class Pickup extends Entity {
   constructor(pos, type = "shield") {
     super({ pos, radius: 13, kind: "pickup" });
     this.pickupType = type;
     this.life = 15;
-    this.phase = Math.random() * Math.PI * 2;
   }
 
   update(dt) {
     this.life -= dt;
-    this.phase += dt * 3;
     if (this.life <= 0) this.markDead();
   }
 

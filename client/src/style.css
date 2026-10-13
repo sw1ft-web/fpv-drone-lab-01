@@ -356,3 +356,41 @@ h1 {
 .chat-form input:focus {
   border-color: #65e7ff;
 }
+
+.netgraph {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 5;
+  padding: 10px 12px;
+  border: 1px solid rgba(102, 255, 204, 0.35);
+  border-radius: 8px;
+  background: rgba(3, 8, 13, 0.82);
+  color: #cfeee6;
+  font:
+    12px/1.45 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  pointer-events: none;
+}
+
+.netgraph[hidden] {
+  display: none;
+}
+
+.netgraph pre {
+  margin: 0 0 6px;
+  white-space: pre;
+}
+
+.netgraph canvas {
+  display: block;
+  width: 240px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.netgraph small {
+  color: #7fa8a0;
+}

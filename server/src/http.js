@@ -58,6 +58,7 @@ async function readJsonBody(req, limit) {
 export function createRequestHandler({
   config,
   roomManager,
+  matches,
   stats,
   logger = console,
 }) {
@@ -88,6 +89,7 @@ export function createRequestHandler({
         rooms: roomManager.size,
         players: roomManager.playerCount,
         ...stats,
+        ...matches?.stats(),
       });
     }
 

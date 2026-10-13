@@ -13,10 +13,10 @@ export function createHomingBehavior(targetKind = "ship", strength = 2.4) {
         if (!candidate.alive || candidate === entity) continue;
         if (candidate.kind === "ship" && !candidate.isActive()) continue;
 
-        const dx = candidate.pos.x - entity.pos.x;
-        const dy = candidate.pos.y - entity.pos.y;
-        const distance = Math.hypot(dx, dy);
-
+        const distance = Math.hypot(
+          candidate.pos.x - entity.pos.x,
+          candidate.pos.y - entity.pos.y,
+        );
         if (distance < nearestDistance) {
           nearest = candidate;
           nearestDistance = distance;
@@ -29,7 +29,6 @@ export function createHomingBehavior(targetKind = "ship", strength = 2.4) {
         nearest.pos.x - entity.pos.x,
         nearest.pos.y - entity.pos.y,
       ).normalize();
-
       const current = new Vector2(entity.vel.x, entity.vel.y).normalize();
       const direction = current
         .scale(1 - strength * dt)

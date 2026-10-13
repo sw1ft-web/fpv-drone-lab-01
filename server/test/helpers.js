@@ -59,7 +59,7 @@ export async function connect(url, { open = true } = {}) {
     get closed() {
       return closed;
     },
-    send: (message) => socket.send(JSON.stringify({ v: 0, ...message })),
+    send: (message) => socket.send(JSON.stringify({ v: 1, ...message })),
     waitFor(predicate, timeoutMs = 2000) {
       return new Promise((resolve, reject) => {
         const timer = setTimeout(() => {

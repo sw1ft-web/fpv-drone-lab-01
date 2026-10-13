@@ -1,7 +1,5 @@
+/** Base entity. Ids are assigned by the World on spawn so they are deterministic per match. */
 export class Entity {
-  static #nextId = 1;
-  #id = Entity.#nextId++;
-
   constructor({
     pos = { x: 0, y: 0 },
     vel = { x: 0, y: 0 },
@@ -9,16 +7,13 @@ export class Entity {
     radius = 10,
     kind = "entity",
   } = {}) {
+    this.id = 0;
     this.pos = { x: pos.x, y: pos.y };
     this.vel = { x: vel.x, y: vel.y };
     this.angle = angle;
     this.radius = radius;
     this.alive = true;
     this.kind = kind;
-  }
-
-  get id() {
-    return this.#id;
   }
 
   update() {}

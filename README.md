@@ -42,7 +42,8 @@ npm run build
 
 ## Звіти по лабораторних
 
-| Lab | Тема                                         | Звіт                                           |
-| --- | -------------------------------------------- | ---------------------------------------------- |
-| 03  | Promises, async/await, loading screen, lobby | [docs/lab-03/README.md](docs/lab-03/README.md) |
-| 04  | Node.js, streams, WebSockets, rooms          | [docs/lab-04.md](docs/lab-04.md)               |
+| Lab | Тема                                                             | Звіт                                           |
+| --- | ---------------------------------------------------------------- | ---------------------------------------------- |
+| 03  | Promises, async/await, loading screen, lobby                     | [docs/lab-03/README.md](docs/lab-03/README.md) |
+| 04  | Node.js, streams, WebSockets, rooms                              | [docs/lab-04.md](docs/lab-04.md)               |
+| 05  | Authoritative server, prediction, interpolation, binary protocol | [docs/lab-05.md](docs/lab-05.md)               |

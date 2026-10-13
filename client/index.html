@@ -41,9 +41,7 @@
           </div>
           <div id="roomList" class="room-list"></div>
           <p id="lobbyStatus" class="status">Waiting for /api/rooms…</p>
-          <button class="primary-button" type="submit">
-            Join & start local game
-          </button>
+          <button class="primary-button" type="submit">Join & play</button>
         </form>
 
         <form id="createRoomForm" class="create-room">
@@ -89,7 +87,8 @@ Choose a failure scenario. The app should recover without crashing.</pre>
           <span><b>W / ↑</b> — thrust</span>
           <span><b>A / D</b> — rotate</span>
           <span><b>F</b> — fire + Web Audio event</span>
-          <span><b>Space</b> — brake / fire action</span>
+          <span><b>Space</b> — brake / fire</span>
+          <span><b>N</b> — netgraph</span>
         </div>
         <div id="eventStatus" class="experiment">Event bus ready</div>
       </section>
@@ -110,6 +109,12 @@ Choose a failure scenario. The app should recover without crashing.</pre>
           />
         </form>
       </section>
+
+      <aside id="netgraph" class="netgraph" hidden aria-label="Network graph">
+        <pre>waiting for snapshots…</pre>
+        <canvas width="240" height="64"></canvas>
+        <small>N — toggle · green: RTT · yellow: snapshot gap</small>
+      </aside>
 
       <div class="crosshair"></div>
       <div class="vignette"></div>

@@ -1,3 +1,5 @@
+import { PICKUP_TYPES, Pickup } from "./pickup.js";
+
 export function circleCollisions(world) {
   const entities = [...world];
   const pairs = [];
@@ -15,7 +17,6 @@ export function circleCollisions(world) {
 }
 
 function overlaps(a, b) {
-  if (a.kind === "explosion" || b.kind === "explosion") return false;
   const dx = a.pos.x - b.pos.x;
   const dy = a.pos.y - b.pos.y;
   const radius = a.radius + b.radius;
@@ -32,7 +33,12 @@ export function resolveCollisions(world) {
     else if (isPair(a, b, "ship", "asteroid")) {
       const ship = a.kind === "ship" ? a : b;
       if (ship.takeDamage(20, world)) {
-        world.emit("hit", { target: "ship", damage: 20, hp: ship.hp });
+        world.emit("hit", {
+          target: "ship",
+          shipId: ship.id,
+          damage: 20,
+          hp: ship.hp,
+        });
       }
     }
   }
@@ -48,9 +54,15 @@ function isPair(a, b, first, second) {
 function hitShip(a, b, world) {
   const bullet = a.kind === "bullet" ? a : b;
   const ship = a.kind === "ship" ? a : b;
+  if (bullet.ownerId === ship.id) return; // no friendly fire on yourself
   if (ship.takeDamage(bullet.damage, world)) {
-    world.emit("hit", { target: "ship", damage: bullet.damage, hp: ship.hp });
-    if (ship.hp <= 0) world.addScore(100, "ship-destroyed");
+    world.emit("hit", {
+      target: "ship",
+      shipId: ship.id,
+      damage: bullet.damage,
+      hp: ship.hp,
+    });
+    if (ship.hp <= 0) world.addScore(bullet.ownerId, 100, "ship-destroyed");
   }
   bullet.markDead();
 }
@@ -60,11 +72,8 @@ function hitAsteroid(a, b, world) {
   const asteroid = a.kind === "asteroid" ? a : b;
   asteroid.markDead();
   bullet.markDead();
-  world.addScore(25, "asteroid");
+  world.addScore(bullet.ownerId, 25, "asteroid");
   world.emit("hit", { target: "asteroid", asteroidId: asteroid.id });
-
-  const { Explosion, Pickup } = world.classes;
-  world.spawn(new Explosion({ x: asteroid.pos.x, y: asteroid.pos.y }, 10));
   world.emit("exploded", {
     kind: "asteroid",
     id: asteroid.id,
@@ -72,8 +81,8 @@ function hitAsteroid(a, b, world) {
     y: asteroid.pos.y,
   });
 
-  if (Math.random() < 0.2) {
-    const type = Math.random() < 0.5 ? "shield" : "rapid-fire";
+  if (world.rng.chance(0.2)) {
+    const type = PICKUP_TYPES[world.rng.int(PICKUP_TYPES.length)];
     world.spawn(new Pickup({ x: asteroid.pos.x, y: asteroid.pos.y }, type));
   }
 }
@@ -82,5 +91,5 @@ function collectPickup(a, b, world) {
   const ship = a.kind === "ship" ? a : b;
   const pickup = a.kind === "pickup" ? a : b;
   pickup.applyTo(ship);
-  world.addScore(10, `pickup-${pickup.pickupType}`);
+  world.addScore(ship.id, 10, `pickup-${pickup.pickupType}`);
 }
