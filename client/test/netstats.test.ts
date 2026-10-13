@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { netStats } from "./fixtures.ts";
 import { NetStatsSampler, formatNetgraph } from "../src/net/netstats.ts";
 

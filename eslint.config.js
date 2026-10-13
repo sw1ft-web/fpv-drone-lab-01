@@ -9,7 +9,15 @@ const unusedVars = [
 
 export default tseslint.config(
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "**/logs/**", ".tmp/**"],
+    ignores: [
+      "**/dist/**",
+      "**/coverage/**",
+      "**/playwright-report/**",
+      "**/test-results/**",
+      "**/node_modules/**",
+      "**/logs/**",
+      ".tmp/**",
+    ],
   },
   js.configs.recommended,
 
@@ -30,7 +38,9 @@ export default tseslint.config(
     extends: [...tseslint.configs.strictTypeChecked],
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ["vitest.config.ts", "playwright.config.ts"],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },

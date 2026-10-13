@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { Room, RoomError, RoomManager } from "../src/rooms.ts";
 
 test("Room emits join, chat, leave and empty", () => {

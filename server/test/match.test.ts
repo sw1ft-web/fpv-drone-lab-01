@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { once } from "node:events";
-import { describe, it } from "node:test";
+import { describe, it } from "vitest";
 import WebSocket from "ws";
 import { STEPS_PER_TICK, asSeq, binaryCodec } from "@fpv/shared";
 import type { Snapshot } from "@fpv/shared";

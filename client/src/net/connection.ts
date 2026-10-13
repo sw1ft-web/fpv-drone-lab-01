@@ -1,3 +1,4 @@
+import { begin, end } from "../perf.ts";
 import { Bus, LatencyInjector } from "@fpv/shared";
 import type { LatencyOptions, NetworkConditions } from "@fpv/shared";
 import {
@@ -225,6 +226,7 @@ export class Connection {
   #receiveText(text: string, socket: SocketLike): void {
     const size = text.length;
     this.bytesIn += size;
+    const decodeStarted = begin();
     let raw: unknown;
     try {
       raw = JSON.parse(text);
@@ -233,6 +235,7 @@ export class Connection {
       return; // the server only sends JSON text or binary frames
     }
     const parsed = parseServerMessage(raw);
+    end("decode", decodeStarted);
     if (!parsed.ok) {
       this.invalidMessages += 1;
       return;

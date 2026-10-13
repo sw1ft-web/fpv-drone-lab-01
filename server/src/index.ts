@@ -89,6 +89,7 @@ export function createApp(
   const matches = new MatchManager({
     roomManager,
     logger,
+    tickerOptions: { spinMs: config.TICK_SPIN_MS },
     deliver: (playerId, snapshot) =>
       sockets?.deliverSnapshot(playerId, snapshot),
   });

@@ -1,0 +1,640 @@
+{
+  "label": "gc-after-2",
+  "environment": {
+    "chromium": "141.0.7390.37",
+    "node": "v22.22.0",
+    "cpus": 2,
+    "bots": 8,
+    "seconds": 30
+  },
+  "profilers": false,
+  "frame": {
+    "count": 1860,
+    "p50": 16.69999999999891,
+    "p95": 16.700000000004366,
+    "p99": 16.80000000000109,
+    "max": 33.30000000000109,
+    "over16_7": 1
+  },
+  "appFrame": {
+    "count": 1860,
+    "p50": 16.699999999254942,
+    "p95": 18.399999999441206,
+    "p99": 20.200000000186265,
+    "max": 46.59999999962747,
+    "totalMs": 31013.099999999627
+  },
+  "spans": {
+    "simulate": {
+      "count": 1861,
+      "p50": 0,
+      "p95": 0.20000000018626451,
+      "p99": 0.8999999994412065,
+      "max": 4.3999999994412065,
+      "totalMs": 136.4000000152737
+    },
+    "render": {
+      "count": 1860,
+      "p50": 0.20000000018626451,
+      "p95": 0.30000000074505806,
+      "p99": 0.599999999627471,
+      "max": 3.900000000372529,
+      "totalMs": 380.9000000320375
+    },
+    "draw": {
+      "count": 1860,
+      "p50": 0.10000000055879354,
+      "p95": 0.20000000018626451,
+      "p99": 0.40000000037252903,
+      "max": 2.900000000372529,
+      "totalMs": 276.8000000184402
+    },
+    "decode": {
+      "count": 930,
+      "p50": 0,
+      "p95": 0.10000000055879354,
+      "p99": 0.10000000055879354,
+      "max": 0.20000000018626451,
+      "totalMs": 16.00000000745058
+    },
+    "reconcile": {
+      "count": 930,
+      "p50": 0,
+      "p95": 0.09999999962747097,
+      "p99": 0.10000000055879354,
+      "max": 0.6999999992549419,
+      "totalMs": 10.500000000931323
+    }
+  },
+  "gc": {
+    "minorGC": 15,
+    "majorGC": 8,
+    "mainThreadPauseMs": 39.620000000000005,
+    "maxSinglePauseMs": 4.174,
+    "events": {
+      "V8.GC_HEAP_EXTERNAL_PROLOGUE": {
+        "count": 23,
+        "ms": 2.0779999999999994,
+        "maxMs": 0.937
+      },
+      "MinorGC": {
+        "count": 15,
+        "ms": 15.488,
+        "maxMs": 1.438
+      },
+      "V8.GC_HEAP_PROLOGUE": {
+        "count": 23,
+        "ms": 0.04700000000000003,
+        "maxMs": 0.01
+      },
+      "V8.GCScavenger": {
+        "count": 15,
+        "ms": 14.056,
+        "maxMs": 1.359
+      },
+      "V8.GC_TIME_TO_SAFEPOINT": {
+        "count": 31,
+        "ms": 0.22700000000000004,
+        "maxMs": 0.07
+      },
+      "V8.GC_SCAVENGER": {
+        "count": 15,
+        "ms": 11.939999999999998,
+        "maxMs": 1.186
+      },
+      "V8.GC_HEAP_PROLOGUE_SAFEPOINT": {
+        "count": 23,
+        "ms": 0.29800000000000004,
+        "maxMs": 0.27
+      },
+      "V8.GC_SCAVENGER_SCAVENGE": {
+        "count": 15,
+        "ms": 11.192000000000002,
+        "maxMs": 1.154
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_WEAK_GLOBAL_HANDLES_IDENTIFY": {
+        "count": 15,
+        "ms": 1.5470000000000002,
+        "maxMs": 0.221
+      },
+      "V8.GC_SCAVENGER_BACKGROUND_TRACED_HANDLES_COMPUTE_WEAKNESS_PARALLEL": {
+        "count": 10,
+        "ms": 0.5030000000000001,
+        "maxMs": 0.146
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_ROOTS": {
+        "count": 15,
+        "ms": 0.6660000000000001,
+        "maxMs": 0.063
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE": {
+        "count": 15,
+        "ms": 6.455,
+        "maxMs": 0.678
+      },
+      "V8.GC_SCAVENGER_BACKGROUND_SCAVENGE_PARALLEL": {
+        "count": 27,
+        "ms": 3.5200000000000005,
+        "maxMs": 0.508
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_WEAK_GLOBAL_HANDLES_PROCESS": {
+        "count": 15,
+        "ms": 1.4799999999999998,
+        "maxMs": 0.607
+      },
+      "V8.GC_SCAVENGER_TRACED_HANDLES_RESET_PARALLEL": {
+        "count": 12,
+        "ms": 0.31000000000000005,
+        "maxMs": 0.045
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_FINALIZE": {
+        "count": 15,
+        "ms": 0.24800000000000005,
+        "maxMs": 0.025
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_UPDATE_REFS": {
+        "count": 15,
+        "ms": 0.03500000000000001,
+        "maxMs": 0.015
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_RESTORE_AND_QUARANTINE_PINNED": {
+        "count": 15,
+        "ms": 0.03300000000000001,
+        "maxMs": 0.004
+      },
+      "V8.GC_SCAVENGER_FREE_REMEMBERED_SET": {
+        "count": 15,
+        "ms": 0.04100000000000001,
+        "maxMs": 0.006
+      },
+      "V8.GC_SCAVENGER_SWEEP_ARRAY_BUFFERS": {
+        "count": 47,
+        "ms": 0.14500000000000002,
+        "maxMs": 0.036
+      },
+      "V8.GC_SCAVENGER_RESIZE_NEW_SPACE": {
+        "count": 15,
+        "ms": 0.041,
+        "maxMs": 0.005
+      },
+      "V8.GC_HEAP_EPILOGUE_SAFEPOINT": {
+        "count": 23,
+        "ms": 0.13700000000000004,
+        "maxMs": 0.01
+      },
+      "V8.GC_HEAP_EPILOGUE": {
+        "count": 23,
+        "ms": 0.09600000000000003,
+        "maxMs": 0.007
+      },
+      "V8.GC_HEAP_DUMP_STATISTICS": {
+        "count": 23,
+        "ms": 0.041000000000000016,
+        "maxMs": 0.009
+      },
+      "V8.GC_Heap_Stats": {
+        "count": 23,
+        "ms": 0,
+        "maxMs": 0
+      },
+      "V8.GC_HEAP_EXTERNAL_EPILOGUE": {
+        "count": 23,
+        "ms": 0.07500000000000002,
+        "maxMs": 0.012
+      },
+      "V8.GC_MINOR_MS_BACKGROUND_SWEEPING": {
+        "count": 14,
+        "ms": 0.07300000000000002,
+        "maxMs": 0.015
+      },
+      "V8.GC_BACKGROUND_YOUNG_ARRAY_BUFFER_SWEEP": {
+        "count": 14,
+        "ms": 0.13700000000000004,
+        "maxMs": 0.021
+      },
+      "V8.GC_SCAVENGER_TRACED_HANDLES_COMPUTE_WEAKNESS_PARALLEL": {
+        "count": 10,
+        "ms": 0.41300000000000003,
+        "maxMs": 0.064
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_PARALLEL": {
+        "count": 12,
+        "ms": 4.607,
+        "maxMs": 0.615
+      },
+      "V8.GCIncrementalMarkingStart": {
+        "count": 8,
+        "ms": 11.245999999999999,
+        "maxMs": 2.547
+      },
+      "V8.GC_MC_INCREMENTAL_START": {
+        "count": 24,
+        "ms": 11.201,
+        "maxMs": 2.545
+      },
+      "V8.GC_MC_INCREMENTAL_EXTERNAL_PROLOGUE": {
+        "count": 8,
+        "ms": 0.40900000000000003,
+        "maxMs": 0.283
+      },
+      "V8.GC_MC_MARK_EMBEDDER_PROLOGUE": {
+        "count": 16,
+        "ms": 3.856,
+        "maxMs": 2.426
+      },
+      "V8.GC_MC_MARK_ROOTS": {
+        "count": 24,
+        "ms": 0.5770000000000001,
+        "maxMs": 0.062
+      },
+      "V8.GC_MC_BACKGROUND_MARKING": {
+        "count": 27,
+        "ms": 57.022,
+        "maxMs": 6.364
+      },
+      "V8.GC_MC_INCREMENTAL_EXTERNAL_EPILOGUE": {
+        "count": 8,
+        "ms": 0.027999999999999997,
+        "maxMs": 0.007
+      },
+      "V8.GCIncrementalMarking": {
+        "count": 150,
+        "ms": 25.564000000000007,
+        "maxMs": 4.174
+      },
+      "V8.GC_MC_INCREMENTAL": {
+        "count": 450,
+        "ms": 23.561000000000003,
+        "maxMs": 4.172
+      },
+      "V8.GC_MC_INCREMENTAL_EMBEDDER_TRACING": {
+        "count": 150,
+        "ms": 5.6270000000000024,
+        "maxMs": 0.458
+      },
+      "MajorGC": {
+        "count": 8,
+        "ms": 25.931,
+        "maxMs": 5.193
+      },
+      "V8.GCFinalizeMC": {
+        "count": 8,
+        "ms": 25.04,
+        "maxMs": 5.085
+      },
+      "V8.GC_MARK_COMPACTOR": {
+        "count": 8,
+        "ms": 24.864999999999995,
+        "maxMs": 4.98
+      },
+      "V8.GC_MC_PROLOGUE": {
+        "count": 8,
+        "ms": 0.020000000000000004,
+        "maxMs": 0.004
+      },
+      "V8.GC_MC_MARK": {
+        "count": 8,
+        "ms": 3.8949999999999996,
+        "maxMs": 0.753
+      },
+      "V8.GC_MC_MARK_FINISH_INCREMENTAL": {
+        "count": 8,
+        "ms": 0.036000000000000004,
+        "maxMs": 0.009
+      },
+      "V8.GC_MC_MARK_CLIENT_HEAPS": {
+        "count": 8,
+        "ms": 0.027000000000000003,
+        "maxMs": 0.016
+      },
+      "V8.GC_MC_MARK_RETAIN_MAPS": {
+        "count": 8,
+        "ms": 0.033,
+        "maxMs": 0.005
+      },
+      "V8.GC_MC_MARK_FULL_CLOSURE_PARALLEL": {
+        "count": 8,
+        "ms": 2.915,
+        "maxMs": 0.675
+      },
+      "V8.GC_MC_MARK_EMBEDDER_TRACING": {
+        "count": 29,
+        "ms": 0.934,
+        "maxMs": 0.209
+      },
+      "V8.GC_MC_MARK_WEAK_CLOSURE_EPHEMERON_MARKING": {
+        "count": 29,
+        "ms": 0.5760000000000001,
+        "maxMs": 0.277
+      },
+      "V8.GC_MC_MARK_FULL_CLOSURE_PARALLEL_JOIN": {
+        "count": 8,
+        "ms": 1.527,
+        "maxMs": 0.624
+      },
+      "V8.GC_CONSERVATIVE_STACK_SCANNING": {
+        "count": 8,
+        "ms": 0.018000000000000002,
+        "maxMs": 0.003
+      },
+      "V8.GC_MC_MARK_FULL_CLOSURE_SERIAL": {
+        "count": 8,
+        "ms": 0.343,
+        "maxMs": 0.13
+      },
+      "V8.GC_MC_CLEAR": {
+        "count": 8,
+        "ms": 4.097,
+        "maxMs": 1.137
+      },
+      "V8.GC_MC_CLEAR_STRING_FORWARDING_TABLE": {
+        "count": 8,
+        "ms": 0.027999999999999997,
+        "maxMs": 0.004
+      },
+      "V8.GC_MC_CLEAR_EXTERNAL_STRING_TABLE": {
+        "count": 8,
+        "ms": 0.16200000000000003,
+        "maxMs": 0.109
+      },
+      "V8.GC_MC_CLEAR_STRING_TABLE": {
+        "count": 8,
+        "ms": 2.286,
+        "maxMs": 1.09
+      },
+      "V8.GC_MC_CLEAR_WEAK_GLOBAL_HANDLES": {
+        "count": 8,
+        "ms": 0.732,
+        "maxMs": 0.251
+      },
+      "V8.GC_MC_CLEAR_FLUSHABLE_BYTECODE": {
+        "count": 8,
+        "ms": 0.08,
+        "maxMs": 0.071
+      },
+      "V8.GC_MC_SWEEP_JS_DISPATCH_TABLE": {
+        "count": 8,
+        "ms": 0.31900000000000006,
+        "maxMs": 0.069
+      },
+      "V8.GC_MC_CLEAR_FLUSHED_JS_FUNCTIONS": {
+        "count": 8,
+        "ms": 0.07300000000000001,
+        "maxMs": 0.051
+      },
+      "V8.GC_MC_CLEAR_WEAK_LISTS": {
+        "count": 8,
+        "ms": 0.08700000000000001,
+        "maxMs": 0.035
+      },
+      "V8.GC_MC_CLEAR_MAPS": {
+        "count": 8,
+        "ms": 0.11800000000000001,
+        "maxMs": 0.024
+      },
+      "V8.GC_MC_SWEEP_EXTERNAL_POINTER_TABLE": {
+        "count": 8,
+        "ms": 0.648,
+        "maxMs": 0.295
+      },
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_TRIVIAL": {
+        "count": 8,
+        "ms": 0.36199999999999993,
+        "maxMs": 0.064
+      },
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_FILTER_NON_TRIVIAL": {
+        "count": 8,
+        "ms": 0.064,
+        "maxMs": 0.013
+      },
+      "V8.GC_MC_SWEEP_TRUSTED_POINTER_TABLE": {
+        "count": 8,
+        "ms": 0.132,
+        "maxMs": 0.03
+      },
+      "V8.GC_MC_SWEEP_CODE_POINTER_TABLE": {
+        "count": 8,
+        "ms": 0.049999999999999996,
+        "maxMs": 0.014
+      },
+      "V8.GC_MC_SWEEP_WASM_CODE_POINTER_TABLE": {
+        "count": 8,
+        "ms": 0.024,
+        "maxMs": 0.014
+      },
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_JOIN_FILTER_JOB": {
+        "count": 8,
+        "ms": 0.05600000000000001,
+        "maxMs": 0.022
+      },
+      "V8.GC_MC_WEAKNESS_HANDLING": {
+        "count": 8,
+        "ms": 0.15300000000000002,
+        "maxMs": 0.035
+      },
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_NON_TRIVIAL": {
+        "count": 8,
+        "ms": 0.019000000000000003,
+        "maxMs": 0.008
+      },
+      "V8.GC_MC_CLEAR_WEAK_COLLECTIONS": {
+        "count": 8,
+        "ms": 0.08199999999999999,
+        "maxMs": 0.013
+      },
+      "V8.GC_MC_CLEAR_JS_WEAK_REFERENCES": {
+        "count": 8,
+        "ms": 0.009000000000000001,
+        "maxMs": 0.002
+      },
+      "V8.GC_MC_CLEAR_JOIN_JOB": {
+        "count": 8,
+        "ms": 0.857,
+        "maxMs": 0.746
+      },
+      "V8.GC_MC_SWEEP": {
+        "count": 99,
+        "ms": 0.35200000000000004,
+        "maxMs": 0.053
+      },
+      "V8.GC_MC_EVACUATE": {
+        "count": 16,
+        "ms": 9.985,
+        "maxMs": 2.036
+      },
+      "V8.GC_MC_EVACUATE_PROLOGUE": {
+        "count": 8,
+        "ms": 0.037000000000000005,
+        "maxMs": 0.006
+      },
+      "V8.GC_MC_EVACUATE_COPY": {
+        "count": 8,
+        "ms": 4.51,
+        "maxMs": 0.706
+      },
+      "V8.GC_MC_BACKGROUND_EVACUATE_COPY": {
+        "count": 2,
+        "ms": 0.617,
+        "maxMs": 0.343
+      },
+      "V8.GC_MC_EVACUATE_COPY_PARALLEL": {
+        "count": 8,
+        "ms": 4.178999999999999,
+        "maxMs": 0.661
+      },
+      "V8.GC_MC_BACKGROUND_SWEEPING": {
+        "count": 22,
+        "ms": 14.118000000000002,
+        "maxMs": 4.743
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS": {
+        "count": 8,
+        "ms": 5.223,
+        "maxMs": 1.653
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_TO_NEW_ROOTS": {
+        "count": 8,
+        "ms": 1.4780000000000002,
+        "maxMs": 0.244
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_CLIENT_HEAPS": {
+        "count": 8,
+        "ms": 0.020000000000000004,
+        "maxMs": 0.006
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_SLOTS_MAIN": {
+        "count": 8,
+        "ms": 1.4860000000000002,
+        "maxMs": 0.272
+      },
+      "V8.GC_MC_BACKGROUND_EVACUATE_UPDATE_POINTERS": {
+        "count": 12,
+        "ms": 0.678,
+        "maxMs": 0.152
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_WEAK": {
+        "count": 8,
+        "ms": 0.033,
+        "maxMs": 0.005
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_POINTER_TABLES": {
+        "count": 8,
+        "ms": 0.7639999999999998,
+        "maxMs": 0.121
+      },
+      "V8.GC_MC_EVACUATE_CLEAN_UP": {
+        "count": 8,
+        "ms": 0.014000000000000002,
+        "maxMs": 0.002
+      },
+      "V8.GC_MC_EVACUATE_EPILOGUE": {
+        "count": 8,
+        "ms": 0.031,
+        "maxMs": 0.014
+      },
+      "V8.GC_MC_SWEEP_NEW_LO": {
+        "count": 8,
+        "ms": 0.010000000000000002,
+        "maxMs": 0.002
+      },
+      "V8.GC_MC_EVACUATE_REBALANCE": {
+        "count": 8,
+        "ms": 0.027000000000000003,
+        "maxMs": 0.012
+      },
+      "V8.GC_MC_FINISH": {
+        "count": 8,
+        "ms": 2.46,
+        "maxMs": 1.098
+      },
+      "V8.GC_MC_FINISH_SWEEP_ARRAY_BUFFERS": {
+        "count": 24,
+        "ms": 0.103,
+        "maxMs": 0.018
+      },
+      "V8.GC_MC_SWEEP_START_JOBS": {
+        "count": 34,
+        "ms": 2.2769999999999992,
+        "maxMs": 1.084
+      },
+      "V8.GC_BACKGROUND_FULL_ARRAY_BUFFER_SWEEP": {
+        "count": 8,
+        "ms": 0.776,
+        "maxMs": 0.273
+      },
+      "V8.GC_MC_EPILOGUE": {
+        "count": 8,
+        "ms": 0.015,
+        "maxMs": 0.003
+      },
+      "V8.GC_HEAP_EXTERNAL_WEAK_GLOBAL_HANDLES": {
+        "count": 2,
+        "ms": 0.028,
+        "maxMs": 0.024
+      },
+      "V8.GC_HEAP_EMBEDDER_TRACING_EPILOGUE": {
+        "count": 8,
+        "ms": 2.9149999999999996,
+        "maxMs": 1.204
+      },
+      "V8.GCMarkCompactorSummary": {
+        "count": 8,
+        "ms": 0,
+        "maxMs": 0
+      },
+      "V8.GCMarkCompactorMarkingSummary": {
+        "count": 8,
+        "ms": 0,
+        "maxMs": 0
+      },
+      "V8.GCSpeedSummary": {
+        "count": 8,
+        "ms": 0,
+        "maxMs": 0
+      },
+      "V8.GCPhantomHandleProcessingCallback": {
+        "count": 2,
+        "ms": 0.009000000000000001,
+        "maxMs": 0.005
+      },
+      "V8.GC_HEAP_EXTERNAL_SECOND_PASS_CALLBACKS": {
+        "count": 2,
+        "ms": 0.007,
+        "maxMs": 0.004
+      },
+      "V8.GC_MC_COMPLETE_SWEEPING": {
+        "count": 32,
+        "ms": 0.279,
+        "maxMs": 0.076
+      },
+      "V8.GC_SCAVENGER_BACKGROUND_TRACED_HANDLES_RESET_PARALLEL": {
+        "count": 9,
+        "ms": 0.28400000000000003,
+        "maxMs": 0.078
+      },
+      "V8.GC_SCAVENGER_COMPLETE_SWEEP_ARRAY_BUFFERS": {
+        "count": 1,
+        "ms": 0.025,
+        "maxMs": 0.025
+      },
+      "V8.GC_MINOR_MS_SWEEP": {
+        "count": 1,
+        "ms": 0.001,
+        "maxMs": 0.001
+      },
+      "V8.GC_YOUNG_ARRAY_BUFFER_SWEEP": {
+        "count": 1,
+        "ms": 0.017,
+        "maxMs": 0.017
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_PARALLEL": {
+        "count": 5,
+        "ms": 0.5880000000000001,
+        "maxMs": 0.147
+      }
+    }
+  },
+  "topAllocators": [],
+  "topSelfTime": [],
+  "serverTickP99Ms": 3.2842000000018743
+}

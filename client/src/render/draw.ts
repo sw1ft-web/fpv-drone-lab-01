@@ -7,7 +7,8 @@ import type {
   ShipView,
   WorldView,
 } from "../net/gameclient.ts";
-import type { Effects, Explosion } from "./effects.ts";
+import { MAX_LIFE } from "./effects.ts";
+import type { Effects } from "./effects.ts";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -68,7 +69,7 @@ export function drawScene(
     drawAsteroid(ctx, asteroid, assets, now);
   for (const ship of view.ships) drawShip(ctx, ship, assets, now);
   for (const bullet of view.bullets) drawBullet(ctx, bullet, assets, now);
-  for (const explosion of effects.explosions) drawExplosion(ctx, explosion);
+  drawParticles(ctx, effects);
   ctx.restore();
 
   ctx.save();
@@ -95,18 +96,18 @@ function drawArena(
   ctx.strokeStyle = arena.grid ?? "rgba(100, 210, 240, 0.08)";
   ctx.lineWidth = 1;
   const gridSize = arena.gridSize ?? 50;
+  // One path and one stroke() for the whole grid: ~50 separate beginPath/stroke
+  // pairs per frame showed up in the profile.
+  ctx.beginPath();
   for (let x = 0; x <= width; x += gridSize) {
-    ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, height);
-    ctx.stroke();
   }
   for (let y = 0; y <= height; y += gridSize) {
-    ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(width, y);
-    ctx.stroke();
   }
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -267,15 +268,16 @@ function drawPickup(ctx: Ctx, pickup: PickupView, now: number): void {
   ctx.restore();
 }
 
-function drawExplosion(ctx: Ctx, explosion: Explosion): void {
-  for (const particle of explosion.particles) {
-    if (particle.life <= 0) continue;
-    ctx.save();
-    ctx.globalAlpha = Math.max(0, particle.life / 0.65);
-    ctx.fillStyle = "#ff9f43";
+/** Particles are drawn without save()/restore() per particle: only alpha changes, and it is reset once. */
+function drawParticles(ctx: Ctx, effects: Effects): void {
+  if (effects.activeCount === 0) return;
+  ctx.fillStyle = "#ff9f43";
+  for (const particle of effects.particles) {
+    if (!particle.active) continue;
+    ctx.globalAlpha = Math.max(0, particle.life / MAX_LIFE);
     ctx.beginPath();
     ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore();
   }
+  ctx.globalAlpha = 1;
 }

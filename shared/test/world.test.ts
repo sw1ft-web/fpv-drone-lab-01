@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { Worker } from "node:worker_threads";
-import { test } from "node:test";
+import { test } from "vitest";
 import {
   Bullet,
   World,

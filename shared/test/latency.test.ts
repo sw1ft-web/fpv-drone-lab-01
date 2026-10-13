@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { createRng } from "../src/prng.ts";
 import { LatencyInjector } from "../src/net/latency.ts";
 

@@ -1,0 +1,45 @@
+{
+  "environment": {
+    "node": "v22.22.0",
+    "cpus": 2,
+    "platform": "linux"
+  },
+  "seconds": 10,
+  "perRoom": 8,
+  "budgetMs": 33.333333333333336,
+  "capacity": "tick p99 exceeds the 33.3 ms budget at N=1024",
+  "results": [
+    {
+      "players": 768,
+      "rooms": 96,
+      "tickP50Ms": 18.677441000001636,
+      "tickP99Ms": 31.0458409999992,
+      "tickMaxMs": 34.9480080000003,
+      "latenessP99Ms": 43.01950699992631,
+      "skippedTicks": 0,
+      "eventLoopUtilization": 0.4731483870708239,
+      "eventLoopDelayP99Ms": 42.336255,
+      "rssMB": 145.734375,
+      "kbPerSecOut": 22643.161187581707,
+      "kbPerSecIn": 224.68369490525586,
+      "snapshotsPerSec": 23059.910417242532,
+      "medianOfP99Ms": 30.95951000000059
+    },
+    {
+      "players": 1024,
+      "rooms": 128,
+      "tickP50Ms": 25.25144899999941,
+      "tickP99Ms": 41.63915300000008,
+      "tickMaxMs": 50.99436799999967,
+      "latenessP99Ms": 141.51901366662787,
+      "skippedTicks": 40,
+      "eventLoopUtilization": 1,
+      "eventLoopDelayP99Ms": 61.112319,
+      "rssMB": 171.453125,
+      "kbPerSecOut": 26133.926018761733,
+      "kbPerSecIn": 298.7239627427701,
+      "snapshotsPerSec": 26933.84818855815,
+      "medianOfP99Ms": 39.32717500000035
+    }
+  ]
+}

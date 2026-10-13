@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { integrateShip } from "../../shared/src/index.ts";
 import type { IntegrateShip } from "../../shared/src/index.ts";
 import { runSession } from "../lib/netsim.ts";

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { once } from "node:events";
-import { after, before, test } from "node:test";
+import { afterAll, beforeAll, test } from "vitest";
 import { WebSocketServer } from "ws";
 import type { RawData, WebSocket } from "ws";
 import { z } from "zod";
@@ -45,7 +45,7 @@ let url: string;
 const received: Received[] = [];
 const sockets: WebSocket[] = [];
 
-before(async () => {
+beforeAll(async () => {
   wss = new WebSocketServer({ port: 0, host: "127.0.0.1" });
   await once(wss, "listening");
   const address = wss.address();
@@ -59,7 +59,7 @@ before(async () => {
   });
 });
 
-after(() => {
+afterAll(() => {
   for (const client of wss.clients) client.terminate();
   return new Promise<void>((resolve) => wss.close(() => resolve()));
 });

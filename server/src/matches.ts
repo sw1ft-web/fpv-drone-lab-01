@@ -34,6 +34,8 @@ export class MatchManager {
   readonly logger: Pick<Logger, "info">;
   readonly matchOptions: NonNullable<MatchManagerOptions["matchOptions"]>;
   readonly ticker: Ticker;
+  readonly #rooms: RoomManager;
+  #botSerial = 0;
 
   constructor({
     roomManager,
@@ -43,6 +45,7 @@ export class MatchManager {
     tickerOptions = {},
     matchOptions = {},
   }: MatchManagerOptions) {
+    this.#rooms = roomManager;
     this.deliver = deliver;
     this.logger = logger;
     this.matchOptions = matchOptions;
@@ -90,6 +93,28 @@ export class MatchManager {
 
   #tickAll(): void {
     for (const match of this.#matches.values()) match.tick();
+  }
+
+  /**
+   * Adds up to `count` bots to a room's match (creating the match if needed).
+   * Humans and bots share the room's capacity. Returns how many were added.
+   */
+  addBots(roomId: string, count: number): number {
+    const room = this.#rooms.get(roomId);
+    if (!room) return 0;
+    const match = this.#ensure(room);
+    let added = 0;
+    while (added < count && match.playerCount < room.maxPlayers) {
+      this.#botSerial += 1;
+      match.addBot(`bot-${this.#botSerial}`, this.#botSerial * 7919);
+      added += 1;
+    }
+    return added;
+  }
+
+  removeBots(roomId: string): number {
+    const match = this.#matches.get(roomId);
+    return match?.removeBots() ?? 0;
   }
 
   get(roomId: string): Match | undefined {

@@ -28,6 +28,7 @@ import type {
 } from "@fpv/shared";
 import type { Outbound, Connection } from "./connection.ts";
 import { SnapshotBuffer, wrapDelta } from "./interpolation.ts";
+import { begin, end } from "../perf.ts";
 
 const MAX_PENDING = 240; // 4 s of unacknowledged inputs: beyond that the server is gone
 const SNAP_DISTANCE = 220; // corrections larger than this are teleports (respawn): do not smooth
@@ -71,7 +72,14 @@ export interface BulletView {
   y: number;
   own: boolean;
 }
-export interface PickupView extends Omit<PickupEntity, "pickupType"> {
+export interface PickupView {
+  kind: "pickup";
+  id: EntityId;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  angle: number;
   pickupType: (typeof PICKUP_NAMES)[number];
 }
 /** What the renderer draws in one frame. */
@@ -108,10 +116,9 @@ interface PendingInput {
 /** A bullet the local ship fired; it lives until the server's copy takes over. */
 interface PredictedBullet {
   fireSeq: Seq;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
+  /** Same shape as the server's Bullet, so `integrateBullet` can advance it directly. */
+  readonly pos: { x: number; y: number };
+  readonly vel: { x: number; y: number };
   ttl: number;
   seenOnServer: boolean;
   missingSince: number | null;
@@ -212,7 +219,10 @@ export class GameClient {
         ),
         connection.onBinary((bytes, size) => {
           try {
-            this.ingest(binaryCodec.decodeSnapshot(bytes), size);
+            const started = begin();
+            const snapshot = binaryCodec.decodeSnapshot(bytes);
+            end("decode", started);
+            this.ingest(snapshot, size);
           } catch {
             this.stats.badFrames += 1;
           }
@@ -266,7 +276,10 @@ export class GameClient {
     if (this.pending.length > MAX_PENDING) this.pending.shift();
 
     if (this.ship) {
-      this.previous = { ...this.ship.pos, angle: this.ship.angle };
+      const previous = (this.previous ??= { x: 0, y: 0, angle: 0 });
+      previous.x = this.ship.pos.x;
+      previous.y = this.ship.pos.y;
+      previous.angle = this.ship.angle;
       this.#advanceBullets();
       if (this.alive) this.#applyCommand(this.ship, bits, seq, true);
     }
@@ -308,10 +321,8 @@ export class GameClient {
       const { pos, vel } = bulletLaunch(ship);
       this.bullets.push({
         fireSeq: seq,
-        x: pos.x,
-        y: pos.y,
-        vx: vel.x,
-        vy: vel.y,
+        pos: { x: pos.x, y: pos.y },
+        vel: { x: vel.x, y: vel.y },
         ttl: BULLET.ttl,
         seenOnServer: false,
         missingSince: null,
@@ -323,15 +334,17 @@ export class GameClient {
     }
   }
 
+  /** Advances and expires predicted bullets in place (no new array, no per-bullet temporaries). */
   #advanceBullets(): void {
+    let kept = 0;
     for (const bullet of this.bullets) {
       bullet.ttl -= SIM_STEP;
-      const holder = { pos: { x: bullet.x, y: bullet.y }, vel: bullet };
-      integrateBullet(holder, SIM_STEP, this.width, this.height);
-      bullet.x = holder.pos.x;
-      bullet.y = holder.pos.y;
+      if (bullet.ttl <= 0) continue;
+      integrateBullet(bullet, SIM_STEP, this.width, this.height);
+      this.bullets[kept] = bullet;
+      kept += 1;
     }
-    this.bullets = this.bullets.filter((b) => b.ttl > 0);
+    this.bullets.length = kept;
   }
 
   // -------------------------------------------------------------- snapshots
@@ -348,7 +361,11 @@ export class GameClient {
     const own = snapshot.entities.find(
       (e): e is ShipEntity => e.kind === "ship" && e.id === this.shipId,
     );
-    if (own) this.#reconcile(own, snapshot.ack, receivedAt);
+    if (own) {
+      const started = begin();
+      this.#reconcile(own, snapshot.ack, receivedAt);
+      end("reconcile", started);
+    }
     this.#matchBullets(snapshot);
   }
 
@@ -483,42 +500,40 @@ export class GameClient {
       ? now - this.stats.lastSnapshotAt
       : 0;
 
-    const { entities } = this.buffer.sample(now);
-    const view: WorldView = {
-      ships: [],
-      bullets: [],
-      asteroids: [],
-      pickups: [],
-      own: null,
-    };
-    for (const entity of entities.values()) {
+    const { list } = this.buffer.sample(now);
+    // One WorldView and its entries are reused every frame (see `#slots`): the
+    // renderer reads them synchronously, so nothing is allocated per frame.
+    const view = this.#view;
+    view.ships.length = 0;
+    view.bullets.length = 0;
+    view.asteroids.length = 0;
+    view.pickups.length = 0;
+    view.own = null;
+    const used = this.#used;
+    used.ships = 0;
+    used.bullets = 0;
+    used.pickups = 0;
+    for (let i = 0; i < list.length; i += 1) {
+      const entity = list[i];
+      if (!entity) continue;
       if (entity.kind === "ship") {
         if (entity.id === this.shipId) continue;
         view.ships.push(this.#shipView(entity, false));
       } else if (entity.kind === "bullet") {
         if (entity.ownerId === this.shipId) continue; // drawn from the predicted copy
-        view.bullets.push({
-          id: entity.id,
-          x: entity.x,
-          y: entity.y,
-          own: false,
-        });
+        view.bullets.push(
+          this.#bulletView(entity.id, entity.x, entity.y, false),
+        );
       } else if (entity.kind === "asteroid") {
         view.asteroids.push(entity);
       } else {
-        view.pickups.push({
-          ...entity,
-          pickupType: PICKUP_NAMES[entity.pickupType],
-        });
+        view.pickups.push(this.#pickupView(entity));
       }
     }
     for (const bullet of this.bullets)
-      view.bullets.push({
-        id: 0 - bullet.fireSeq,
-        x: bullet.x,
-        y: bullet.y,
-        own: true,
-      });
+      view.bullets.push(
+        this.#bulletView(0 - bullet.fireSeq, bullet.pos.x, bullet.pos.y, true),
+      );
 
     if (this.ship && this.serverState) {
       const previous = this.previous ?? {
@@ -529,22 +544,13 @@ export class GameClient {
       const dy = wrapDelta(previous.y, this.ship.pos.y, this.height);
       const turn = wrapDelta(previous.angle, this.ship.angle, TAU);
       view.own = this.#shipView(
-        {
-          ...this.serverState,
-          x: this.#wrap(
-            previous.x + dx * alpha + this.correction.x,
-            this.width,
-          ),
-          y: this.#wrap(
-            previous.y + dy * alpha + this.correction.y,
-            this.height,
-          ),
-          angle: previous.angle + turn * alpha,
-          flags:
-            (this.serverState.flags & ~SNAPSHOT_FLAGS.THRUST) |
-            (this.ship.thrust ? SNAPSHOT_FLAGS.THRUST : 0),
-        },
+        this.serverState,
         true,
+        this.#wrap(previous.x + dx * alpha + this.correction.x, this.width),
+        this.#wrap(previous.y + dy * alpha + this.correction.y, this.height),
+        previous.angle + turn * alpha,
+        (this.serverState.flags & ~SNAPSHOT_FLAGS.THRUST) |
+          (this.ship.thrust ? SNAPSHOT_FLAGS.THRUST : 0),
       );
       view.ships.push(view.own);
     }
@@ -555,20 +561,93 @@ export class GameClient {
     return ((value % size) + size) % size;
   }
 
-  #shipView(entity: ShipEntity, own: boolean): ShipView {
-    return {
-      id: entity.id,
-      x: entity.x,
-      y: entity.y,
-      angle: entity.angle,
-      hp: entity.hp,
-      score: entity.score,
-      active: (entity.flags & SNAPSHOT_FLAGS.ACTIVE) !== 0,
-      invulnerable: (entity.flags & SNAPSHOT_FLAGS.INVULNERABLE) !== 0,
-      shield: (entity.flags & SNAPSHOT_FLAGS.SHIELD) !== 0,
-      thrust: (entity.flags & SNAPSHOT_FLAGS.THRUST) !== 0,
-      own,
-    };
+  readonly #view: WorldView = {
+    ships: [],
+    bullets: [],
+    asteroids: [],
+    pickups: [],
+    own: null,
+  };
+  /** Object pools behind `#view`: grown on demand, then reused forever. */
+  readonly #slots: {
+    ships: ShipView[];
+    bullets: BulletView[];
+    pickups: PickupView[];
+  } = { ships: [], bullets: [], pickups: [] };
+  readonly #used = { ships: 0, bullets: 0, pickups: 0 };
+
+  #shipView(
+    entity: ShipEntity,
+    own: boolean,
+    x = entity.x,
+    y = entity.y,
+    angle = entity.angle,
+    flags = entity.flags,
+  ): ShipView {
+    const slots = this.#slots.ships;
+    let view = slots[this.#used.ships];
+    if (!view) {
+      view = {
+        id: entity.id,
+        x: 0,
+        y: 0,
+        angle: 0,
+        hp: 0,
+        score: 0,
+        active: false,
+        invulnerable: false,
+        shield: false,
+        thrust: false,
+        own: false,
+      };
+      slots.push(view);
+    }
+    this.#used.ships += 1;
+    view.id = entity.id;
+    view.x = x;
+    view.y = y;
+    view.angle = angle;
+    view.hp = entity.hp;
+    view.score = entity.score;
+    view.active = (flags & SNAPSHOT_FLAGS.ACTIVE) !== 0;
+    view.invulnerable = (flags & SNAPSHOT_FLAGS.INVULNERABLE) !== 0;
+    view.shield = (flags & SNAPSHOT_FLAGS.SHIELD) !== 0;
+    view.thrust = (flags & SNAPSHOT_FLAGS.THRUST) !== 0;
+    view.own = own;
+    return view;
+  }
+
+  #bulletView(id: number, x: number, y: number, own: boolean): BulletView {
+    const slots = this.#slots.bullets;
+    let view = slots[this.#used.bullets];
+    if (!view) {
+      view = { id, x, y, own };
+      slots.push(view);
+    }
+    this.#used.bullets += 1;
+    view.id = id;
+    view.x = x;
+    view.y = y;
+    view.own = own;
+    return view;
+  }
+
+  #pickupView(entity: PickupEntity): PickupView {
+    const slots = this.#slots.pickups;
+    let view = slots[this.#used.pickups];
+    if (!view) {
+      view = { ...entity, pickupType: PICKUP_NAMES[entity.pickupType] };
+      slots.push(view);
+    }
+    this.#used.pickups += 1;
+    view.id = entity.id;
+    view.x = entity.x;
+    view.y = entity.y;
+    view.vx = entity.vx;
+    view.vy = entity.vy;
+    view.angle = entity.angle;
+    view.pickupType = PICKUP_NAMES[entity.pickupType];
+    return view;
   }
 
   /** Numbers for the netgraph. `bytesIn` is cumulative; the overlay turns it into a rate. */

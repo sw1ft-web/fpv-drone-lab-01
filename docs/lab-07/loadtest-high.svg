@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="380" viewBox="0 0 760 380" font-family="system-ui, sans-serif">
+<rect width="760" height="380" fill="#ffffff"/>
+<text x="380" y="18" text-anchor="middle" font-size="14" font-weight="600" fill="#111827">Server tick time vs players (high)</text>
+<line x1="72" y1="328" x2="736" y2="328" stroke="#e5e7eb"/>
+<text x="64" y="332" text-anchor="end" font-size="11" fill="#4b5563">0</text>
+<line x1="72" y1="271.2" x2="736" y2="271.2" stroke="#e5e7eb"/>
+<text x="64" y="275.2" text-anchor="end" font-size="11" fill="#4b5563">10</text>
+<line x1="72" y1="214.39999999999998" x2="736" y2="214.39999999999998" stroke="#e5e7eb"/>
+<text x="64" y="218.39999999999998" text-anchor="end" font-size="11" fill="#4b5563">20</text>
+<line x1="72" y1="157.6" x2="736" y2="157.6" stroke="#e5e7eb"/>
+<text x="64" y="161.6" text-anchor="end" font-size="11" fill="#4b5563">30</text>
+<line x1="72" y1="100.79999999999998" x2="736" y2="100.79999999999998" stroke="#e5e7eb"/>
+<text x="64" y="104.79999999999998" text-anchor="end" font-size="11" fill="#4b5563">40</text>
+<line x1="72" y1="44" x2="736" y2="44" stroke="#e5e7eb"/>
+<text x="64" y="48" text-anchor="end" font-size="11" fill="#4b5563">50</text>
+<text x="72" y="346" text-anchor="middle" font-size="11" fill="#4b5563">0</text>
+<text x="204.8" y="346" text-anchor="middle" font-size="11" fill="#4b5563">102.4</text>
+<text x="337.6" y="346" text-anchor="middle" font-size="11" fill="#4b5563">204.8</text>
+<text x="470.40000000000003" y="346" text-anchor="middle" font-size="11" fill="#4b5563">307.2</text>
+<text x="603.2" y="346" text-anchor="middle" font-size="11" fill="#4b5563">409.6</text>
+<text x="736" y="346" text-anchor="middle" font-size="11" fill="#4b5563">512</text>
+<line x1="72" y1="44" x2="72" y2="328" stroke="#9ca3af"/>
+<line x1="72" y1="328" x2="736" y2="328" stroke="#9ca3af"/>
+<path d="M238.0,305.1 L404.0,288.2 L570.0,268.8 L736.0,250.7" fill="none" stroke="#2563eb" stroke-width="2"/>
+<rect x="84" y="16" width="14" height="4" fill="#2563eb"/>
+<text x="104" y="22" font-size="12" fill="#111827">p50</text>
+<path d="M238.0,270.5 L404.0,232.4 L570.0,212.5 L736.0,184.0" fill="none" stroke="#dc2626" stroke-width="2"/>
+<rect x="274" y="16" width="14" height="4" fill="#dc2626"/>
+<text x="294" y="22" font-size="12" fill="#111827">p99</text>
+<path d="M238.0,138.7 L404.0,138.7 L570.0,138.7 L736.0,138.7" fill="none" stroke="#dc2626" stroke-width="2"/>
+<rect x="464" y="16" width="14" height="4" fill="#dc2626"/>
+<text x="484" y="22" font-size="12" fill="#111827">budget 33 ms</text>
+<text x="404" y="370" text-anchor="middle" font-size="12" fill="#374151">players</text>
+<text transform="translate(16 186) rotate(-90)" text-anchor="middle" font-size="12" fill="#374151">tick time, ms</text>
+</svg>

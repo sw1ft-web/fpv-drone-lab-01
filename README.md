@@ -1,5 +1,7 @@
 # FPV Drone — multiplayer JavaScript game
 
+[![CI](https://github.com/sw1ft-web/fpv-drone-lab-01/actions/workflows/ci.yml/badge.svg)](https://github.com/sw1ft-web/fpv-drone-lab-01/actions/workflows/ci.yml)
+
 Навчальний проєкт курсу «JavaScript — Build a Multiplayer Game»: космічний (FPV) дог-файт, який росте від локального game loop (Lab 01) до гри з авторитетним сервером, TypeScript, тестами і деплоєм.
 
 ## Структура репозиторію
@@ -9,6 +11,7 @@ client/    Vite-застосунок (canvas, asset loader, lobby, чат)      
 server/    Node.js: HTTP, WebSocket, rooms, match logs             — Lab 04
 shared/    симуляція, протокол (zod), кодеки — код обох сторін      — Lab 05–06
 docs/      звіти по лабораторних, графіки, логи експериментів
+e2e/       Playwright: два браузери проти реального сервера
 scripts/   dev-скрипт, headless-стенд мережі, SVG-графіки
 ```
 
@@ -46,9 +49,10 @@ npm run build
 
 ## Звіти по лабораторних
 
-| Lab | Тема                                                              | Звіт                                           |
-| --- | ----------------------------------------------------------------- | ---------------------------------------------- |
-| 03  | Promises, async/await, loading screen, lobby                      | [docs/lab-03/README.md](docs/lab-03/README.md) |
-| 04  | Node.js, streams, WebSockets, rooms                               | [docs/lab-04.md](docs/lab-04.md)               |
-| 05  | Authoritative server, prediction, interpolation, binary protocol  | [docs/lab-05.md](docs/lab-05.md)               |
-| 06  | TypeScript: strict, zod-протокол, типізовані події, branded types | [docs/lab-06.md](docs/lab-06.md)               |
+| Lab | Тема                                                                   | Звіт                                           |
+| --- | ---------------------------------------------------------------------- | ---------------------------------------------- |
+| 03  | Promises, async/await, loading screen, lobby                           | [docs/lab-03/README.md](docs/lab-03/README.md) |
+| 04  | Node.js, streams, WebSockets, rooms                                    | [docs/lab-04.md](docs/lab-04.md)               |
+| 05  | Authoritative server, prediction, interpolation, binary protocol       | [docs/lab-05.md](docs/lab-05.md)               |
+| 06  | TypeScript: strict, zod-протокол, типізовані події, branded types      | [docs/lab-06.md](docs/lab-06.md)               |
+| 07  | Тести, V8/GC, профілювання, боти, навантаження (ємність ≈ 768 гравців) | [docs/lab-07.md](docs/lab-07.md)               |

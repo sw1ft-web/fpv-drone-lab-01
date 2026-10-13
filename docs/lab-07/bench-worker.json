@@ -1,0 +1,33 @@
+{
+  "node": "v22.22.0",
+  "results": [
+    {
+      "entities": 14,
+      "bytes": 501,
+      "mainThreadDecodeMs": 0.00125394,
+      "workerPostMs": 0.01373799999998937,
+      "workerRoundTripMs": 0.07300700000001825
+    },
+    {
+      "entities": 100,
+      "bytes": 2582,
+      "mainThreadDecodeMs": 0.005400501999999961,
+      "workerPostMs": 0.013158999999973275,
+      "workerRoundTripMs": 0.20540500000004158
+    },
+    {
+      "entities": 500,
+      "bytes": 12876,
+      "mainThreadDecodeMs": 0.02942066600000021,
+      "workerPostMs": 0.018888999999944645,
+      "workerRoundTripMs": 0.7543239999999969
+    },
+    {
+      "entities": 2000,
+      "bytes": 51888,
+      "mainThreadDecodeMs": 0.14820429599999987,
+      "workerPostMs": 0.03522100000009232,
+      "workerRoundTripMs": 3.598559000000023
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import { query } from "../dom.ts";
+import type { WelcomeMessage } from "@fpv/shared/protocol";
 import type { Connection } from "../net/connection.ts";
 
 export interface ChatPanel {
@@ -10,7 +11,16 @@ export interface ChatPanel {
 /** Chat + roster panel. All text goes through textContent, never innerHTML. */
 export function mountChat(
   root: HTMLElement,
-  { connection, playerId }: { connection: Connection; playerId: string },
+  {
+    connection,
+    playerId,
+    welcome,
+  }: {
+    connection: Connection;
+    playerId: string;
+    /** The welcome that already arrived: the panel is mounted after it, so it must be applied here. */
+    welcome?: WelcomeMessage;
+  },
 ): ChatPanel {
   const rosterEl = query(root, "#roster", HTMLElement);
   const logEl = query(root, "#chatLog", HTMLElement);
@@ -44,6 +54,11 @@ export function mountChat(
       }),
     );
   };
+
+  if (welcome) {
+    renderRoster(welcome.roster);
+    setStatus("Connected", "ok");
+  }
 
   const unsubscribe = [
     connection.on("roster", (message) => renderRoster(message.roster)),

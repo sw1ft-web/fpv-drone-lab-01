@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 import { SNAPSHOT_FLAGS, TICK_MS, asEntityId } from "@fpv/shared";
 import type { EntityId, EntityView } from "@fpv/shared";
 import { ship, snap } from "./fixtures.ts";

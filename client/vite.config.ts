@@ -50,6 +50,8 @@ const proxy = {
 
 export default defineConfig({
   plugins: [labDelayPlugin()],
+  // `PERF_BUILD=1` keeps function names so CPU/heap profiles are readable (docs/lab-07.md).
+  build: process.env["PERF_BUILD"] ? { minify: false, sourcemap: true } : {},
   server: { proxy },
   preview: { proxy },
 });

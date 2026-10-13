@@ -11,7 +11,7 @@
     "./net": "./src/net/latency.ts"
   },
   "scripts": {
-    "test": "node --test \"test/**/*.test.ts\"",
+    "test": "vitest run --root .. --project shared",
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
