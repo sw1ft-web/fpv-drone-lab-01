@@ -1,0 +1,29 @@
+# Fly.io config (untested: no Fly account/token was available while authoring).
+app = "fpv-drone-lab"
+primary_region = "waw"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  LOG_LEVEL = "info"
+  TRUST_PROXY = "true"   # Fly's proxy sets X-Forwarded-For; needed for the per-IP cap
+  # ALLOWED_ORIGINS = "https://fpv-drone-lab.fly.dev"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "off"   # an authoritative game server must keep ticking
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/ready"
+    interval = "15s"
+    timeout = "3s"
+    grace_period = "10s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

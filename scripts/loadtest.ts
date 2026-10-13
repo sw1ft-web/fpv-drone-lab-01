@@ -72,6 +72,7 @@ async function startServer(): Promise<{
       LOG_DIR: logDir,
       MAX_ROOMS: "200",
       MAX_PLAYERS_PER_ROOM: String(PER_ROOM),
+      MAX_CONNECTIONS_PER_IP: "100000",
       RATE_CAPACITY: "1000",
       RATE_REFILL_PER_SEC: "1000",
     },

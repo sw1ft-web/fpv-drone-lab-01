@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { Server } from "node:http";
+import type { IncomingMessage, Server } from "node:http";
 import { WebSocketServer } from "ws";
 import type { WebSocket } from "ws";
 import { ARENA_HEIGHT, ARENA_WIDTH, SIM_HZ, TICK_HZ } from "@fpv/shared";
@@ -120,6 +120,55 @@ export interface WebSocketOptions {
   config: ServerConfig;
   logger?: Logger;
   stats?: Stats;
+  /** Called with a low-cardinality reason whenever a connection is refused or dropped for cause. */
+  onReject?: (reason: string) => void;
+}
+
+/** close code -> metric/log label */
+const REJECT_REASON: Readonly<Record<number, string>> = {
+  [CLOSE.TOO_BIG]: "too_big",
+  [CLOSE.BAD_MESSAGE]: "bad_message",
+  [CLOSE.UNKNOWN_TYPE]: "unknown_type",
+  [CLOSE.JOIN_TIMEOUT]: "join_timeout",
+  [CLOSE.RATE_LIMIT]: "rate_limit",
+  [CLOSE.ROOM_UNAVAILABLE]: "room_unavailable",
+  [CLOSE.SLOW_CLIENT]: "slow_client",
+};
+
+/**
+ * Is a browser at `origin` allowed to open a socket to `host`?
+ * No Origin header = not a browser (bots, curl, tests): allowed, because Origin
+ * only protects against OTHER WEBSITES driving a visitor's browser.
+ */
+export function originAllowed(
+  origin: string | undefined,
+  host: string | undefined,
+  allowed: readonly string[],
+): boolean {
+  if (origin === undefined || origin === "") return true;
+  if (allowed.includes("*")) return true;
+  if (allowed.includes(origin)) return true;
+  if (allowed.length > 0) return false;
+  try {
+    return new URL(origin).host === host; // same-origin only
+  } catch {
+    return false;
+  }
+}
+
+/** The client address: X-Forwarded-For's first hop only when we sit behind a proxy we trust. */
+export function clientIp(
+  request: IncomingMessage,
+  trustProxy: boolean,
+): string {
+  if (trustProxy) {
+    const forwarded = request.headers["x-forwarded-for"];
+    const first = (Array.isArray(forwarded) ? forwarded[0] : forwarded)
+      ?.split(",")[0]
+      ?.trim();
+    if (first) return first;
+  }
+  return request.socket.remoteAddress ?? "unknown";
 }
 
 export interface WebSocketEndpoint {
@@ -136,11 +185,37 @@ export function attachWebSocketServer({
   config,
   logger = consoleLogger,
   stats = createStats(),
+  onReject = () => {},
 }: WebSocketOptions): WebSocketEndpoint {
+  const connectionsByIp = new Map<string, number>();
+  const refuse = (
+    request: IncomingMessage,
+    reason: string,
+    detail: string,
+  ): void => {
+    stats.rejected += 1;
+    onReject(reason);
+    logger.warn(
+      { reason, detail, remote: clientIp(request, config.TRUST_PROXY) },
+      "ws.rejected",
+    );
+  };
   const wss = new WebSocketServer({
     server,
     path: "/ws",
     maxPayload: config.MAX_PAYLOAD_BYTES,
+    verifyClient: ({ origin, req }, done) => {
+      if (!originAllowed(origin, req.headers.host, config.ALLOWED_ORIGINS)) {
+        refuse(req, "origin", `origin ${origin} not allowed`);
+        return done(false, 403, "origin not allowed");
+      }
+      const ip = clientIp(req, config.TRUST_PROXY);
+      if ((connectionsByIp.get(ip) ?? 0) >= config.MAX_CONNECTIONS_PER_IP) {
+        refuse(req, "ip_cap", `too many connections from ${ip}`);
+        return done(false, 429, "too many connections");
+      }
+      done(true);
+    },
   });
   const socketsByPlayer = new Map<string, WebSocket>(); // playerId -> socket
   const states = new Map<WebSocket, ConnectionState>();
@@ -211,7 +286,8 @@ export function attachWebSocketServer({
     states.set(socket, state);
     stats.connections += 1;
     stats.totalConnections += 1;
-    const remote = request.socket.remoteAddress;
+    const remote = clientIp(request, config.TRUST_PROXY);
+    connectionsByIp.set(remote, (connectionsByIp.get(remote) ?? 0) + 1);
 
     const reject = (
       code: number,
@@ -219,9 +295,11 @@ export function attachWebSocketServer({
       { notify = true }: { notify?: boolean } = {},
     ): void => {
       stats.rejected += 1;
+      const label = REJECT_REASON[code] ?? "other";
+      onReject(label);
       logger.warn(
-        { conn: state.id, remote, code, reason },
-        "closing connection",
+        { conn: state.id, remote, code, reason: label, detail: reason },
+        "ws.rejected",
       );
       if (notify) send(socket, { type: "error", code, message: reason }, true);
       socket.close(code, reason.slice(0, 120));
@@ -277,6 +355,15 @@ export function attachWebSocketServer({
             return reject(CLOSE.ROOM_UNAVAILABLE, "match unavailable");
           }
           clearTimeout(joinTimer);
+          logger.info(
+            {
+              conn: state.id,
+              roomId: room.id,
+              playerId: player.id,
+              name: player.name,
+            },
+            "player.joined",
+          );
           state.session = { room, player };
           state.codec = getCodec(message.codec);
           socketsByPlayer.set(player.id, socket);
@@ -327,6 +414,9 @@ export function attachWebSocketServer({
       states.delete(socket);
       clearTimeout(joinTimer);
       stats.connections -= 1;
+      const left = (connectionsByIp.get(remote) ?? 1) - 1;
+      if (left <= 0) connectionsByIp.delete(remote);
+      else connectionsByIp.set(remote, left);
       leaveRoom();
     });
   });
@@ -338,7 +428,8 @@ export function attachWebSocketServer({
       if (!state) continue;
       if (state.missedPongs >= 2) {
         stats.heartbeatTerminations += 1;
-        logger.warn({ conn: state.id }, "terminating: missed two pongs");
+        onReject("heartbeat");
+        logger.warn({ conn: state.id, reason: "heartbeat" }, "ws.rejected");
         socket.terminate();
         continue;
       }
@@ -367,8 +458,18 @@ export function attachWebSocketServer({
     deliverSnapshot,
     async close(): Promise<void> {
       clearInterval(heartbeat);
-      for (const socket of wss.clients)
+      for (const socket of wss.clients) {
+        send(
+          socket,
+          {
+            type: "shutdown",
+            message: "server is shutting down",
+            retryAfterMs: 2000,
+          },
+          true,
+        );
         socket.close(CLOSE.GOING_AWAY, "server shutting down");
+      }
       await new Promise<void>((resolve) => wss.close(() => resolve()));
     },
   };

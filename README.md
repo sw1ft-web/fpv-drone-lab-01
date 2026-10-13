@@ -56,3 +56,19 @@ npm run build
 | 05  | Authoritative server, prediction, interpolation, binary protocol       | [docs/lab-05.md](docs/lab-05.md)               |
 | 06  | TypeScript: strict, zod-протокол, типізовані події, branded types      | [docs/lab-06.md](docs/lab-06.md)               |
 | 07  | Тести, V8/GC, профілювання, боти, навантаження (ємність ≈ 768 гравців) | [docs/lab-07.md](docs/lab-07.md)               |
+| 08  | Production: логи, метрики, health/ready, захист WS, Docker, PWA, chaos | [docs/lab-08.md](docs/lab-08.md)               |
+
+## Production
+
+```bash
+docker compose up --build            # http://localhost:3000 (образ не збирався в середовищі авторства — див. docs/lab-08.md)
+```
+
+- `GET /health` — liveness (версія, sha, uptime); `GET /ready` — readiness (503 під час shutdown); `GET /metrics` — Prometheus (опційно `METRICS_TOKEN`).
+- Змінні середовища — `server/.env.example`.
+- Деплой: тег `v*` запускає `.github/workflows/deploy.yml` (GHCR + опційно Fly.io, **не перевірено**).
+
+## Обмеження (чесно)
+
+- Ємність виміряна на 2 спільних CPU: ≈ 768 гравців у межах бюджету тіку 33 мс; без реальної мережі.
+- Немає публічного URL, моніторингу аптайму, відео-демо, перевірки PWA на телефоні та Docker-збірки — див. `docs/lab-08.md`.

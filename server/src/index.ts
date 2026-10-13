@@ -7,7 +7,9 @@ import type { ServerConfig } from "./config.ts";
 import { createRequestHandler } from "./http.ts";
 import { attachMatchLog } from "./log/matchlog.ts";
 import type { MatchLog } from "./log/matchlog.ts";
-import { consoleLogger } from "./logger.ts";
+import { consoleLogger, createLogger } from "./logger.ts";
+import { createMetrics } from "./metrics.ts";
+import { VERSION } from "./version.ts";
 import type { Logger } from "./logger.ts";
 import { MatchManager } from "./matches.ts";
 import { RoomManager } from "./rooms.ts";
@@ -53,6 +55,7 @@ export function createApp(
   config: ServerConfig,
   { logger = consoleLogger }: { logger?: Logger } = {},
 ): App {
+  let shuttingDown = false;
   const roomManager = new RoomManager({
     maxRooms: config.MAX_ROOMS,
     maxPlayersPerRoom: config.MAX_PLAYERS_PER_ROOM,
@@ -66,6 +69,10 @@ export function createApp(
     logger.error({ err: error }, "match log failed");
 
   roomManager.on("roomCreated", (room) => {
+    logger.info(
+      { roomId: room.id, arenaId: room.arenaId, maxPlayers: room.maxPlayers },
+      "room.created",
+    );
     matchLogs.set(
       room.id,
       attachMatchLog(room, config.LOG_DIR, { onError: onLogError }),
@@ -93,8 +100,23 @@ export function createApp(
     deliver: (playerId, snapshot) =>
       sockets?.deliverSnapshot(playerId, snapshot),
   });
-  const server = createServer(
-    createRequestHandler({ config, roomManager, matches, stats, logger }),
+  const metrics = createMetrics({
+    roomManager,
+    matches,
+    stats,
+    version: VERSION,
+    sha: config.GIT_SHA,
+  });
+  const server: Server = createServer(
+    createRequestHandler({
+      config,
+      roomManager,
+      matches,
+      stats,
+      logger,
+      metrics,
+      isReady: (): boolean => !shuttingDown && server.listening,
+    }),
   );
   sockets = attachWebSocketServer({
     server,
@@ -103,6 +125,7 @@ export function createApp(
     config,
     logger,
     stats,
+    onReject: (reason) => metrics.rejected(reason),
   });
 
   return {
@@ -124,6 +147,7 @@ export function createApp(
     },
     /** Stop accepting connections, close sockets, flush match logs. */
     async close(): Promise<void> {
+      shuttingDown = true; // /ready answers 503 from this moment on
       const closed = new Promise<void>((resolve) =>
         server.close(() => resolve()),
       );
@@ -140,10 +164,17 @@ export function createApp(
 
 async function main(): Promise<void> {
   const config = loadConfig();
-  const app = createApp(config);
+  const logger = createLogger(config.LOG_LEVEL);
+  const app = createApp(config, { logger });
   const address = await app.listen();
-  consoleLogger.info(
-    { port: address.port, logDir: config.LOG_DIR },
+  logger.info(
+    {
+      port: address.port,
+      logDir: config.LOG_DIR,
+      version: VERSION,
+      sha: config.GIT_SHA,
+      env: config.NODE_ENV,
+    },
     "server listening",
   );
 
@@ -151,14 +182,14 @@ async function main(): Promise<void> {
   const shutdown = async (signal: string): Promise<void> => {
     if (shuttingDown) return;
     shuttingDown = true;
-    consoleLogger.info({ signal }, "shutting down");
+    logger.info({ signal }, "shutting down");
     const force = setTimeout(() => {
-      consoleLogger.error({}, "shutdown timed out");
+      logger.error({}, "shutdown timed out");
       process.exit(1);
     }, config.SHUTDOWN_TIMEOUT_MS);
     force.unref();
     await app.close();
-    consoleLogger.info({}, "shutdown complete");
+    logger.info({}, "shutdown complete");
     process.exit(0);
   };
   process.on("SIGINT", () => void shutdown("SIGINT"));

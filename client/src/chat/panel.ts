@@ -69,6 +69,9 @@ export function mountChat(
     connection.on("chat", (message) =>
       addLine(`${message.from}: ${message.text}`),
     ),
+    connection.on("shutdown", (message) =>
+      addLine(`Server: ${message.message}`, "error"),
+    ),
     connection.on("error", (message) =>
       addLine(`Server: ${message.message}`, "error"),
     ),

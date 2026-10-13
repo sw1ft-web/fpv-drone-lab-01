@@ -193,7 +193,16 @@ const ErrorSchema = z.object({
   message: z.string(),
 });
 
+/** Sent to every client just before a planned shutdown; the socket then closes with 1001. */
+const ShutdownSchema = z.object({
+  v: version,
+  type: z.literal("shutdown"),
+  message: z.string(),
+  retryAfterMs: z.number().int().min(0),
+});
+
 export const ServerMessageSchema = z.discriminatedUnion("type", [
+  ShutdownSchema,
   WelcomeSchema,
   RosterSchema,
   ServerChatSchema,

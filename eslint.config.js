@@ -11,6 +11,7 @@ export default tseslint.config(
   {
     ignores: [
       "**/dist/**",
+      "client/public/sw.js",
       "**/coverage/**",
       "**/playwright-report/**",
       "**/test-results/**",

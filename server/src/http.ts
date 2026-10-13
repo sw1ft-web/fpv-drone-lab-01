@@ -10,6 +10,8 @@ import { pipeline } from "node:stream/promises";
 import { z } from "zod";
 import type { ServerConfig } from "./config.ts";
 import { consoleLogger } from "./logger.ts";
+import type { Metrics } from "./metrics.ts";
+import { VERSION } from "./version.ts";
 import type { Logger } from "./logger.ts";
 import type { MatchManager } from "./matches.ts";
 import { RoomError } from "./rooms.ts";
@@ -90,6 +92,9 @@ export interface RequestHandlerOptions {
   matches?: MatchManager;
   stats: Record<string, number>;
   logger?: Logger;
+  metrics?: Metrics;
+  /** Readiness: false while starting up or shutting down (the load balancer must stop sending traffic). */
+  isReady?: () => boolean;
 }
 
 export function createRequestHandler({
@@ -98,6 +103,8 @@ export function createRequestHandler({
   matches,
   stats,
   logger = consoleLogger,
+  metrics,
+  isReady = () => true,
 }: RequestHandlerOptions): (req: IncomingMessage, res: ServerResponse) => void {
   const loopDelay = monitorEventLoopDelay({ resolution: 10 });
   loopDelay.enable();
@@ -114,13 +121,41 @@ export function createRequestHandler({
     const { pathname } = url;
     const method = req.method ?? "GET";
 
+    // Liveness: the process is up and its event loop answers. Never depends on anything else.
     if (pathname === "/health") {
       sendJson(res, 200, {
         status: "ok",
+        version: VERSION,
+        sha: config.GIT_SHA,
+        startedAt: new Date(startedAt).toISOString(),
         uptimeSec: Math.round((Date.now() - startedAt) / 1000),
         rooms: roomManager.size,
         players: roomManager.playerCount,
       });
+      return;
+    }
+
+    // Readiness: may this instance take new players? 503 during shutdown.
+    if (pathname === "/ready") {
+      const ready = isReady();
+      sendJson(res, ready ? 200 : 503, {
+        status: ready ? "ready" : "shutting_down",
+      });
+      return;
+    }
+
+    if (pathname === "/metrics" && metrics) {
+      if (
+        config.METRICS_TOKEN !== undefined &&
+        req.headers.authorization !== `Bearer ${config.METRICS_TOKEN}`
+      )
+        throw new HttpError(401, "metrics require a bearer token");
+      const body = await metrics.render();
+      res.writeHead(200, {
+        "Content-Type": metrics.registry.contentType,
+        "Cache-Control": "no-store",
+      });
+      res.end(body);
       return;
     }
 
