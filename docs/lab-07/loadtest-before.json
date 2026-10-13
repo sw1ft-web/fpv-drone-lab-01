@@ -1,0 +1,77 @@
+{
+  "environment": {
+    "node": "v22.22.0",
+    "cpus": 2,
+    "platform": "linux"
+  },
+  "seconds": 10,
+  "perRoom": 8,
+  "budgetMs": 33.333333333333336,
+  "capacity": "tick p99 stayed under 33.3 ms up to N=128",
+  "results": [
+    {
+      "players": 8,
+      "rooms": 1,
+      "tickP50Ms": 0.415407999999843,
+      "tickP99Ms": 1.8222539999997025,
+      "tickMaxMs": 4.625850000000355,
+      "latenessP99Ms": 0.49228899999479836,
+      "skippedTicks": 0,
+      "eventLoopUtilization": 0.46293553620162997,
+      "eventLoopDelayP99Ms": 11.157503,
+      "rssMB": 118.65234375,
+      "kbPerSecOut": 227.69998244182125,
+      "kbPerSecIn": 2.358134417068773,
+      "snapshotsPerSec": 240.3785256562617,
+      "medianOfP99Ms": 3.2683529999999905
+    },
+    {
+      "players": 32,
+      "rooms": 4,
+      "tickP50Ms": 0.9874939999990602,
+      "tickP99Ms": 3.6898370000000114,
+      "tickMaxMs": 5.648295999999846,
+      "latenessP99Ms": 0.6898133333124861,
+      "skippedTicks": 0,
+      "eventLoopUtilization": 0.5747445130902371,
+      "eventLoopDelayP99Ms": 11.190271,
+      "rssMB": 120.375,
+      "kbPerSecOut": 933.2113824804206,
+      "kbPerSecIn": 9.425489578765697,
+      "snapshotsPerSec": 959.1950804541406,
+      "medianOfP99Ms": 3.9829039999995075
+    },
+    {
+      "players": 64,
+      "rooms": 8,
+      "tickP50Ms": 1.7945279999999002,
+      "tickP99Ms": 5.962151000000176,
+      "tickMaxMs": 10.55893100000003,
+      "latenessP99Ms": 1.0368133333340666,
+      "skippedTicks": 0,
+      "eventLoopUtilization": 0.7310331430791304,
+      "eventLoopDelayP99Ms": 11.993087,
+      "rssMB": 119.9921875,
+      "kbPerSecOut": 1805.458270430535,
+      "kbPerSecIn": 18.81026164392724,
+      "snapshotsPerSec": 1918.8992161970373,
+      "medianOfP99Ms": 6.7363619999996445
+    },
+    {
+      "players": 128,
+      "rooms": 16,
+      "tickP50Ms": 3.41469700000016,
+      "tickP99Ms": 8.555224000000067,
+      "tickMaxMs": 13.415336000000025,
+      "latenessP99Ms": 0.6909356666606072,
+      "skippedTicks": 0,
+      "eventLoopUtilization": 1,
+      "eventLoopDelayP99Ms": 14.237695,
+      "rssMB": 134.84765625,
+      "kbPerSecOut": 3708.4367599325756,
+      "kbPerSecIn": 37.604753109376084,
+      "snapshotsPerSec": 3837.38034779679,
+      "medianOfP99Ms": 8.555224000000067
+    }
+  ]
+}

@@ -1,7 +1,10 @@
 import { createReadStream } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { readdir, stat } from "node:fs/promises";
-import { monitorEventLoopDelay } from "node:perf_hooks";
+import {
+  monitorEventLoopDelay,
+  performance as perfHooks,
+} from "node:perf_hooks";
 import { join, resolve, sep } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { z } from "zod";
@@ -12,6 +15,11 @@ import type { MatchManager } from "./matches.ts";
 import { RoomError } from "./rooms.ts";
 import type { RoomManager } from "./rooms.ts";
 import { serveStatic } from "./static.ts";
+
+const ROOM_BOTS = /^\/api\/rooms\/([a-z0-9][a-z0-9-]{0,63})\/bots$/;
+
+/** Body of POST /api/rooms/:id/bots. */
+const AddBotsBody = z.object({ count: z.number().int().min(1).max(32) });
 
 const REPLAY_ID = /^[a-z0-9][a-z0-9._-]{0,120}$/;
 
@@ -94,6 +102,9 @@ export function createRequestHandler({
   const loopDelay = monitorEventLoopDelay({ resolution: 10 });
   loopDelay.enable();
   const startedAt = Date.now();
+  // Utilization is reported for the interval since the previous /api/stats call,
+  // so a load test (or a dashboard polling every few seconds) sees the recent load.
+  let lastUtilization = perfHooks.eventLoopUtilization();
 
   async function route(
     req: IncomingMessage,
@@ -115,7 +126,11 @@ export function createRequestHandler({
 
     if (pathname === "/api/stats") {
       const memory = process.memoryUsage();
+      const utilization = perfHooks.eventLoopUtilization(lastUtilization);
+      lastUtilization = perfHooks.eventLoopUtilization();
       sendJson(res, 200, {
+        eventLoopUtilization: utilization.utilization,
+        uptimeSec: Math.round((Date.now() - startedAt) / 1000),
         rssBytes: memory.rss,
         heapUsedBytes: memory.heapUsed,
         eventLoopDelayP99Ms: loopDelay.percentile(99) / 1e6,
@@ -171,6 +186,31 @@ export function createRequestHandler({
         }
       }
       res.setHeader("Allow", "GET, POST");
+      throw new HttpError(405, "method not allowed");
+    }
+
+    const botsMatch = ROOM_BOTS.exec(pathname);
+    if (botsMatch) {
+      const roomId = botsMatch[1] ?? "";
+      if (!matches || !roomManager.get(roomId))
+        throw new HttpError(404, "room not found");
+      if (method === "POST") {
+        const raw = await readJsonBody(req, config.MAX_BODY_BYTES);
+        const body = AddBotsBody.safeParse(raw);
+        if (!body.success)
+          throw new HttpError(400, "count must be an integer from 1 to 32");
+        const added = matches.addBots(roomId, body.data.count);
+        sendJson(res, added > 0 ? 201 : 409, {
+          added,
+          bots: matches.get(roomId)?.botCount ?? 0,
+        });
+        return;
+      }
+      if (method === "DELETE") {
+        sendJson(res, 200, { removed: matches.removeBots(roomId) });
+        return;
+      }
+      res.setHeader("Allow", "POST, DELETE");
       throw new HttpError(405, "method not allowed");
     }
 

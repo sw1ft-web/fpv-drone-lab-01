@@ -10,6 +10,8 @@ import type {
   Tick,
 } from "@fpv/shared";
 import { asSeq, asTick } from "@fpv/shared";
+import { Bot } from "./bot.ts";
+import type { PlayerInput } from "./bot.ts";
 
 /** What the match hands to the transport for one player after every tick. */
 export interface MatchSnapshot {
@@ -53,6 +55,8 @@ interface PlayerState {
  */
 export class Match {
   readonly #players = new Map<string, PlayerState>();
+  /** Players whose input comes from code instead of a socket; they get no snapshots. */
+  readonly #bots = new Map<string, { input: PlayerInput; seq: number }>();
   readonly arenaId: string;
   readonly seed: number;
   readonly world: World;
@@ -97,9 +101,33 @@ export class Match {
     return ship.id;
   }
 
+  /** Adds a bot: a player like any other, except its inputs are generated here every tick. */
+  addBot(
+    playerId: string,
+    seed = this.tickNumber + this.#bots.size + 1,
+  ): EntityId {
+    const shipId = this.addPlayer(playerId);
+    this.#bots.set(playerId, {
+      input: new Bot(this.world, shipId, seed),
+      seq: 0,
+    });
+    return shipId;
+  }
+
+  removeBots(): number {
+    const ids = [...this.#bots.keys()];
+    for (const id of ids) this.removePlayer(id);
+    return ids.length;
+  }
+
+  get botCount(): number {
+    return this.#bots.size;
+  }
+
   removePlayer(playerId: string): void {
     const player = this.#players.get(playerId);
     if (!player) return;
+    this.#bots.delete(playerId);
     this.#players.delete(playerId);
     this.world.removeEntity(player.shipId);
   }
@@ -130,6 +158,15 @@ export class Match {
   }
 
   tick(): void {
+    // A bot "sends" one input per simulation step through the same path as a human.
+    for (const [botId, bot] of this.#bots) {
+      const inputs: InputEntry[] = [];
+      for (let step = 0; step < STEPS_PER_TICK; step += 1) {
+        bot.seq += 1;
+        inputs.push({ seq: asSeq(bot.seq), bits: bot.input.nextBits() });
+      }
+      this.receiveInputs(botId, inputs);
+    }
     for (let step = 0; step < STEPS_PER_TICK; step += 1) {
       const commands = new Map<EntityId, SequencedCommand>();
       for (const player of this.#players.values()) {
@@ -150,6 +187,7 @@ export class Match {
 
     const entities = this.world.snapshotEntities();
     for (const [playerId, player] of this.#players) {
+      if (this.#bots.has(playerId)) continue;
       this.onSnapshot(playerId, {
         tick: asTick(this.tickNumber),
         ack: player.ack,

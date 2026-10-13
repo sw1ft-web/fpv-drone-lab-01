@@ -10,6 +10,7 @@ import type { Assets } from "./assets/loader.ts";
 import { ArenaStyleSchema } from "./assets/schema.ts";
 import type { ArenaStyle } from "./assets/schema.ts";
 import { query } from "./dom.ts";
+import { begin, end, labPerf, recordFrame } from "./perf.ts";
 import { AudioManager } from "./audio/audio.ts";
 import { Lobby } from "./lobby/lobby.ts";
 import { joinRoom } from "./net/session.ts";
@@ -23,7 +24,7 @@ import { GameClient } from "./net/gameclient.ts";
 import { mountNetgraph } from "./net/netgraph.ts";
 import type { Netgraph } from "./net/netgraph.ts";
 import { Effects } from "./render/effects.ts";
-import { commandToBits } from "@fpv/shared";
+import { COMMAND_BITS } from "@fpv/shared";
 import type { CodecName, NetworkConditions } from "@fpv/shared";
 import type { RoomInfo } from "@fpv/shared/protocol";
 import type { Loop, LoopStats } from "./loop.ts";
@@ -35,6 +36,7 @@ declare global {
       readonly game: GameClient | null;
       setNetwork(network: Partial<NetworkConditions>): void;
     };
+    labPerf: typeof labPerf;
     lab04: { readonly connection: Joined["connection"] | undefined };
     lab03: {
       abortLoading(): void;
@@ -237,22 +239,39 @@ function startGame(
 /** One 60 Hz step: sample the keyboard into a command, predict locally, queue it for the server. */
 function simulate(dt: number): void {
   if (!game) return;
+  const started = begin();
+  // Bits are built directly: an object literal here would be allocated 60 times a second.
   game.step(
-    commandToBits({
-      left: input.isDown("KeyA") || input.isDown("ArrowLeft"),
-      right: input.isDown("KeyD") || input.isDown("ArrowRight"),
-      thrust: input.isDown("KeyW") || input.isDown("ArrowUp"),
-      brake: input.isDown("Space"),
-      fire: input.isDown("KeyF") || input.justPressed("Space"),
-    }),
+    (input.isDown("KeyA") || input.isDown("ArrowLeft")
+      ? COMMAND_BITS.left
+      : 0) |
+      (input.isDown("KeyD") || input.isDown("ArrowRight")
+        ? COMMAND_BITS.right
+        : 0) |
+      (input.isDown("KeyW") || input.isDown("ArrowUp")
+        ? COMMAND_BITS.thrust
+        : 0) |
+      (input.isDown("Space") ? COMMAND_BITS.brake : 0) |
+      (input.isDown("KeyF") || input.justPressed("Space")
+        ? COMMAND_BITS.fire
+        : 0),
   );
   effects.update(dt);
+  end("simulate", started);
 }
+
+let lastFrameAt = 0;
+let lastHudAt = 0;
+const HUD_INTERVAL_MS = 250;
 
 function render(alpha: number, stats: LoopStats): void {
   if (!game || !assets) return;
-  const now = performance.now();
+  const started = begin();
+  if (lastFrameAt > 0) recordFrame(started - lastFrameAt);
+  lastFrameAt = started;
+  const now = started;
   const view = game.view(alpha, now);
+  const drawStarted = begin();
   drawScene(
     ctx.context,
     ctx.cssWidth,
@@ -264,17 +283,24 @@ function render(alpha: number, stats: LoopStats): void {
     arenaSize,
     now,
   );
+  end("draw", drawStarted);
   netgraph?.update(now);
-  stepsEl.textContent = stats.stepsPerSecond.toFixed(0);
-  framesEl.textContent = stats.framesPerSecond.toFixed(0);
-  frameTimeEl.textContent = stats.frameTimeMs.toFixed(2);
-  if (view.own) hpEl.textContent = `${view.own.hp}/100`;
-  entitiesEl.textContent = String(
-    view.ships.length +
-      view.bullets.length +
-      view.asteroids.length +
-      view.pickups.length,
-  );
+  // The HUD text changes a few times a second at most; writing it every frame
+  // forces style/layout work and string allocation 60 times a second.
+  if (now - lastHudAt >= HUD_INTERVAL_MS) {
+    lastHudAt = now;
+    stepsEl.textContent = stats.stepsPerSecond.toFixed(0);
+    framesEl.textContent = stats.framesPerSecond.toFixed(0);
+    frameTimeEl.textContent = stats.frameTimeMs.toFixed(2);
+    if (view.own) hpEl.textContent = `${view.own.hp}/100`;
+    entitiesEl.textContent = String(
+      view.ships.length +
+        view.bullets.length +
+        view.asteroids.length +
+        view.pickups.length,
+    );
+  }
+  end("render", started);
 }
 
 window.addEventListener("keydown", (event) => {
@@ -297,6 +323,8 @@ window.addEventListener("resize", () => {
     });
   }
 });
+
+window.labPerf = labPerf;
 
 window.lab05 = {
   get game() {

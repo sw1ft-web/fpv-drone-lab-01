@@ -1,0 +1,591 @@
+{
+  "label": "gc-before-2",
+  "environment": {
+    "chromium": "141.0.7390.37",
+    "node": "v22.22.0",
+    "cpus": 2,
+    "bots": 8,
+    "seconds": 30
+  },
+  "profilers": false,
+  "frame": {
+    "count": 1880,
+    "p50": 16.69999999999891,
+    "p95": 16.799999999999272,
+    "p99": 16.80000000000109,
+    "max": 33.400000000001455,
+    "over16_7": 2
+  },
+  "spans": {},
+  "gc": {
+    "minorGC": 9,
+    "majorGC": 17,
+    "mainThreadPauseMs": 62.43700000000002,
+    "maxSinglePauseMs": 4.982,
+    "events": {
+      "V8.GC_HEAP_EXTERNAL_PROLOGUE": {
+        "count": 26,
+        "ms": 0.24100000000000008,
+        "maxMs": 0.018
+      },
+      "MinorGC": {
+        "count": 9,
+        "ms": 9.163999999999998,
+        "maxMs": 1.376
+      },
+      "V8.GC_HEAP_PROLOGUE": {
+        "count": 26,
+        "ms": 0.04200000000000002,
+        "maxMs": 0.004
+      },
+      "V8.GCScavenger": {
+        "count": 9,
+        "ms": 8.226,
+        "maxMs": 1.218
+      },
+      "V8.GC_MC_COMPLETE_SWEEPING": {
+        "count": 66,
+        "ms": 0.5530000000000003,
+        "maxMs": 0.087
+      },
+      "V8.GC_MC_SWEEP": {
+        "count": 185,
+        "ms": 0.7990000000000003,
+        "maxMs": 0.08
+      },
+      "V8.GC_TIME_TO_SAFEPOINT": {
+        "count": 43,
+        "ms": 0.08200000000000005,
+        "maxMs": 0.008
+      },
+      "V8.GC_SCAVENGER": {
+        "count": 9,
+        "ms": 6.298,
+        "maxMs": 1.148
+      },
+      "V8.GC_HEAP_PROLOGUE_SAFEPOINT": {
+        "count": 26,
+        "ms": 0.02800000000000001,
+        "maxMs": 0.002
+      },
+      "V8.GC_SCAVENGER_SCAVENGE": {
+        "count": 9,
+        "ms": 6.047999999999999,
+        "maxMs": 1.115
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_WEAK_GLOBAL_HANDLES_IDENTIFY": {
+        "count": 9,
+        "ms": 1.2279999999999998,
+        "maxMs": 0.469
+      },
+      "V8.GC_SCAVENGER_TRACED_HANDLES_COMPUTE_WEAKNESS_PARALLEL": {
+        "count": 8,
+        "ms": 0.28099999999999997,
+        "maxMs": 0.056
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_ROOTS": {
+        "count": 9,
+        "ms": 0.431,
+        "maxMs": 0.104
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE": {
+        "count": 9,
+        "ms": 3.378,
+        "maxMs": 0.803
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_PARALLEL": {
+        "count": 9,
+        "ms": 1.918,
+        "maxMs": 0.341
+      },
+      "V8.GC_SCAVENGER_BACKGROUND_SCAVENGE_PARALLEL": {
+        "count": 11,
+        "ms": 2.117,
+        "maxMs": 0.666
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_WEAK_GLOBAL_HANDLES_PROCESS": {
+        "count": 9,
+        "ms": 0.364,
+        "maxMs": 0.075
+      },
+      "V8.GC_SCAVENGER_TRACED_HANDLES_RESET_PARALLEL": {
+        "count": 8,
+        "ms": 0.148,
+        "maxMs": 0.043
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_FINALIZE": {
+        "count": 9,
+        "ms": 0.15000000000000002,
+        "maxMs": 0.025
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_UPDATE_REFS": {
+        "count": 9,
+        "ms": 0.012,
+        "maxMs": 0.002
+      },
+      "V8.GC_SCAVENGER_SCAVENGE_RESTORE_AND_QUARANTINE_PINNED": {
+        "count": 9,
+        "ms": 0.017,
+        "maxMs": 0.003
+      },
+      "V8.GC_SCAVENGER_FREE_REMEMBERED_SET": {
+        "count": 9,
+        "ms": 0.04900000000000001,
+        "maxMs": 0.034
+      },
+      "V8.GC_SCAVENGER_SWEEP_ARRAY_BUFFERS": {
+        "count": 31,
+        "ms": 0.066,
+        "maxMs": 0.015
+      },
+      "V8.GC_SCAVENGER_RESIZE_NEW_SPACE": {
+        "count": 9,
+        "ms": 0.03800000000000001,
+        "maxMs": 0.024
+      },
+      "V8.GC_HEAP_EPILOGUE_SAFEPOINT": {
+        "count": 26,
+        "ms": 0.2350000000000001,
+        "maxMs": 0.081
+      },
+      "V8.GC_HEAP_EPILOGUE": {
+        "count": 26,
+        "ms": 0.11300000000000004,
+        "maxMs": 0.011
+      },
+      "V8.GC_HEAP_DUMP_STATISTICS": {
+        "count": 26,
+        "ms": 0.04000000000000002,
+        "maxMs": 0.003
+      },
+      "V8.GC_Heap_Stats": {
+        "count": 26,
+        "ms": 0,
+        "maxMs": 0
+      },
+      "V8.GC_MINOR_MS_BACKGROUND_SWEEPING": {
+        "count": 8,
+        "ms": 0.116,
+        "maxMs": 0.036
+      },
+      "V8.GC_BACKGROUND_YOUNG_ARRAY_BUFFER_SWEEP": {
+        "count": 8,
+        "ms": 0.08200000000000002,
+        "maxMs": 0.039
+      },
+      "V8.GC_HEAP_EXTERNAL_EPILOGUE": {
+        "count": 26,
+        "ms": 0.09100000000000004,
+        "maxMs": 0.005
+      },
+      "V8.GC_SCAVENGER_BACKGROUND_TRACED_HANDLES_COMPUTE_WEAKNESS_PARALLEL": {
+        "count": 4,
+        "ms": 0.14800000000000002,
+        "maxMs": 0.059
+      },
+      "V8.GC_SCAVENGER_BACKGROUND_TRACED_HANDLES_RESET_PARALLEL": {
+        "count": 3,
+        "ms": 0.07,
+        "maxMs": 0.034
+      },
+      "V8.GC_SCAVENGER_COMPLETE_SWEEP_ARRAY_BUFFERS": {
+        "count": 2,
+        "ms": 0.064,
+        "maxMs": 0.047
+      },
+      "V8.GCIncrementalMarkingStart": {
+        "count": 17,
+        "ms": 32.96300000000001,
+        "maxMs": 3.691
+      },
+      "V8.GC_MC_INCREMENTAL_START": {
+        "count": 51,
+        "ms": 32.752,
+        "maxMs": 3.687
+      },
+      "V8.GC_MC_INCREMENTAL_EXTERNAL_PROLOGUE": {
+        "count": 17,
+        "ms": 0.22900000000000004,
+        "maxMs": 0.022
+      },
+      "V8.GC_MC_MARK_EMBEDDER_PROLOGUE": {
+        "count": 34,
+        "ms": 5.263,
+        "maxMs": 2.735
+      },
+      "V8.GC_MC_MARK_ROOTS": {
+        "count": 51,
+        "ms": 1.1070000000000002,
+        "maxMs": 0.06
+      },
+      "V8.GC_MC_BACKGROUND_MARKING": {
+        "count": 63,
+        "ms": 154.87099999999998,
+        "maxMs": 7.586
+      },
+      "V8.GC_MC_INCREMENTAL_EXTERNAL_EPILOGUE": {
+        "count": 17,
+        "ms": 0.06400000000000002,
+        "maxMs": 0.007
+      },
+      "V8.GCIncrementalMarking": {
+        "count": 290,
+        "ms": 54.21100000000002,
+        "maxMs": 4.982
+      },
+      "V8.GC_MC_INCREMENTAL": {
+        "count": 870,
+        "ms": 51.38499999999999,
+        "maxMs": 4.978
+      },
+      "V8.GC_MC_INCREMENTAL_EMBEDDER_TRACING": {
+        "count": 290,
+        "ms": 10.979000000000003,
+        "maxMs": 0.779
+      },
+      "MajorGC": {
+        "count": 17,
+        "ms": 47.839000000000006,
+        "maxMs": 7.823
+      },
+      "V8.GCFinalizeMC": {
+        "count": 17,
+        "ms": 45.93599999999999,
+        "maxMs": 7.702
+      },
+      "V8.GC_MARK_COMPACTOR": {
+        "count": 17,
+        "ms": 45.775999999999996,
+        "maxMs": 7.69
+      },
+      "V8.GC_MC_PROLOGUE": {
+        "count": 17,
+        "ms": 0.05700000000000002,
+        "maxMs": 0.028
+      },
+      "V8.GC_MC_MARK": {
+        "count": 17,
+        "ms": 11.280999999999999,
+        "maxMs": 3.341
+      },
+      "V8.GC_MC_MARK_FINISH_INCREMENTAL": {
+        "count": 17,
+        "ms": 0.06700000000000003,
+        "maxMs": 0.006
+      },
+      "V8.GC_MC_MARK_CLIENT_HEAPS": {
+        "count": 17,
+        "ms": 0.02000000000000001,
+        "maxMs": 0.002
+      },
+      "V8.GC_MC_MARK_RETAIN_MAPS": {
+        "count": 17,
+        "ms": 0.07300000000000002,
+        "maxMs": 0.011
+      },
+      "V8.GC_MC_MARK_FULL_CLOSURE_PARALLEL": {
+        "count": 17,
+        "ms": 9.405,
+        "maxMs": 3.277
+      },
+      "V8.GC_MC_MARK_EMBEDDER_TRACING": {
+        "count": 60,
+        "ms": 1.3349999999999995,
+        "maxMs": 0.263
+      },
+      "V8.GC_MC_MARK_WEAK_CLOSURE_EPHEMERON_MARKING": {
+        "count": 60,
+        "ms": 0.4020000000000001,
+        "maxMs": 0.067
+      },
+      "V8.GC_MC_MARK_FULL_CLOSURE_PARALLEL_JOIN": {
+        "count": 17,
+        "ms": 7.771,
+        "maxMs": 3.234
+      },
+      "V8.GC_CONSERVATIVE_STACK_SCANNING": {
+        "count": 17,
+        "ms": 0.027000000000000003,
+        "maxMs": 0.003
+      },
+      "V8.GC_MC_MARK_FULL_CLOSURE_SERIAL": {
+        "count": 17,
+        "ms": 0.633,
+        "maxMs": 0.144
+      },
+      "V8.GC_MC_CLEAR": {
+        "count": 17,
+        "ms": 6.410999999999999,
+        "maxMs": 0.69
+      },
+      "V8.GC_MC_CLEAR_STRING_FORWARDING_TABLE": {
+        "count": 17,
+        "ms": 0.05400000000000002,
+        "maxMs": 0.004
+      },
+      "V8.GC_MC_CLEAR_EXTERNAL_STRING_TABLE": {
+        "count": 17,
+        "ms": 0.10700000000000004,
+        "maxMs": 0.016
+      },
+      "V8.GC_MC_CLEAR_WEAK_GLOBAL_HANDLES": {
+        "count": 17,
+        "ms": 0.5470000000000003,
+        "maxMs": 0.041
+      },
+      "V8.GC_MC_CLEAR_FLUSHABLE_BYTECODE": {
+        "count": 17,
+        "ms": 0.1,
+        "maxMs": 0.073
+      },
+      "V8.GC_MC_SWEEP_JS_DISPATCH_TABLE": {
+        "count": 17,
+        "ms": 0.5000000000000002,
+        "maxMs": 0.035
+      },
+      "V8.GC_MC_CLEAR_FLUSHED_JS_FUNCTIONS": {
+        "count": 17,
+        "ms": 0.12000000000000002,
+        "maxMs": 0.098
+      },
+      "V8.GC_MC_CLEAR_WEAK_LISTS": {
+        "count": 17,
+        "ms": 0.16200000000000006,
+        "maxMs": 0.042
+      },
+      "V8.GC_MC_CLEAR_MAPS": {
+        "count": 17,
+        "ms": 0.202,
+        "maxMs": 0.016
+      },
+      "V8.GC_MC_CLEAR_STRING_TABLE": {
+        "count": 17,
+        "ms": 2.6590000000000003,
+        "maxMs": 0.281
+      },
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_TRIVIAL": {
+        "count": 17,
+        "ms": 0.6270000000000001,
+        "maxMs": 0.055
+      },
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_FILTER_NON_TRIVIAL": {
+        "count": 17,
+        "ms": 0.12400000000000005,
+        "maxMs": 0.017
+      },
+      "V8.GC_MC_SWEEP_EXTERNAL_POINTER_TABLE": {
+        "count": 17,
+        "ms": 1.147,
+        "maxMs": 0.408
+      },
+      "V8.GC_MC_SWEEP_TRUSTED_POINTER_TABLE": {
+        "count": 17,
+        "ms": 0.22400000000000003,
+        "maxMs": 0.016
+      },
+      "V8.GC_MC_SWEEP_CODE_POINTER_TABLE": {
+        "count": 17,
+        "ms": 0.10700000000000004,
+        "maxMs": 0.034
+      },
+      "V8.GC_MC_SWEEP_WASM_CODE_POINTER_TABLE": {
+        "count": 17,
+        "ms": 0.021000000000000008,
+        "maxMs": 0.002
+      },
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_JOIN_FILTER_JOB": {
+        "count": 17,
+        "ms": 0.24500000000000005,
+        "maxMs": 0.038
+      },
+      "V8.GC_MC_WEAKNESS_HANDLING": {
+        "count": 17,
+        "ms": 0.2770000000000001,
+        "maxMs": 0.034
+      },
+      "V8.GC_MC_CLEAR_WEAK_REFERENCES_NON_TRIVIAL": {
+        "count": 17,
+        "ms": 0.03600000000000002,
+        "maxMs": 0.013
+      },
+      "V8.GC_MC_CLEAR_WEAK_COLLECTIONS": {
+        "count": 17,
+        "ms": 0.16800000000000004,
+        "maxMs": 0.027
+      },
+      "V8.GC_MC_CLEAR_JS_WEAK_REFERENCES": {
+        "count": 17,
+        "ms": 0.020000000000000004,
+        "maxMs": 0.002
+      },
+      "V8.GC_MC_CLEAR_JOIN_JOB": {
+        "count": 17,
+        "ms": 0.716,
+        "maxMs": 0.164
+      },
+      "V8.GC_MC_EVACUATE": {
+        "count": 34,
+        "ms": 21.825999999999997,
+        "maxMs": 6.769
+      },
+      "V8.GC_MC_EVACUATE_PROLOGUE": {
+        "count": 17,
+        "ms": 0.096,
+        "maxMs": 0.008
+      },
+      "V8.GC_MC_EVACUATE_COPY": {
+        "count": 17,
+        "ms": 11.321,
+        "maxMs": 2.689
+      },
+      "V8.GC_MC_EVACUATE_COPY_PARALLEL": {
+        "count": 13,
+        "ms": 4.686,
+        "maxMs": 0.518
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS": {
+        "count": 17,
+        "ms": 10.159999999999998,
+        "maxMs": 4.063
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_TO_NEW_ROOTS": {
+        "count": 17,
+        "ms": 2.673,
+        "maxMs": 0.203
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_CLIENT_HEAPS": {
+        "count": 17,
+        "ms": 0.07200000000000002,
+        "maxMs": 0.049
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_SLOTS_MAIN": {
+        "count": 17,
+        "ms": 5.593,
+        "maxMs": 3.74
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_PARALLEL": {
+        "count": 15,
+        "ms": 1.2550000000000001,
+        "maxMs": 0.225
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_WEAK": {
+        "count": 17,
+        "ms": 0.06200000000000001,
+        "maxMs": 0.006
+      },
+      "V8.GC_MC_EVACUATE_UPDATE_POINTERS_POINTER_TABLES": {
+        "count": 17,
+        "ms": 1.569,
+        "maxMs": 0.132
+      },
+      "V8.GC_MC_EVACUATE_CLEAN_UP": {
+        "count": 17,
+        "ms": 0.031000000000000014,
+        "maxMs": 0.003
+      },
+      "V8.GC_MC_EVACUATE_EPILOGUE": {
+        "count": 17,
+        "ms": 0.06500000000000002,
+        "maxMs": 0.021
+      },
+      "V8.GC_MC_SWEEP_NEW_LO": {
+        "count": 17,
+        "ms": 0.021000000000000005,
+        "maxMs": 0.002
+      },
+      "V8.GC_MC_EVACUATE_REBALANCE": {
+        "count": 17,
+        "ms": 0.031000000000000014,
+        "maxMs": 0.002
+      },
+      "V8.GC_MC_FINISH": {
+        "count": 17,
+        "ms": 1.0639999999999998,
+        "maxMs": 0.571
+      },
+      "V8.GC_MC_FINISH_SWEEP_ARRAY_BUFFERS": {
+        "count": 51,
+        "ms": 0.18200000000000002,
+        "maxMs": 0.027
+      },
+      "V8.GC_MC_SWEEP_START_JOBS": {
+        "count": 57,
+        "ms": 0.7480000000000001,
+        "maxMs": 0.55
+      },
+      "V8.GC_MC_EPILOGUE": {
+        "count": 17,
+        "ms": 0.030000000000000013,
+        "maxMs": 0.003
+      },
+      "V8.GC_HEAP_EMBEDDER_TRACING_EPILOGUE": {
+        "count": 17,
+        "ms": 2.3519999999999994,
+        "maxMs": 0.532
+      },
+      "V8.GCMarkCompactorSummary": {
+        "count": 17,
+        "ms": 0,
+        "maxMs": 0
+      },
+      "V8.GCMarkCompactorMarkingSummary": {
+        "count": 17,
+        "ms": 0,
+        "maxMs": 0
+      },
+      "V8.GCSpeedSummary": {
+        "count": 17,
+        "ms": 0,
+        "maxMs": 0
+      },
+      "V8.GC_BACKGROUND_FULL_ARRAY_BUFFER_SWEEP": {
+        "count": 17,
+        "ms": 0.8050000000000002,
+        "maxMs": 0.141
+      },
+      "V8.GC_MC_BACKGROUND_SWEEPING": {
+        "count": 59,
+        "ms": 17.578,
+        "maxMs": 1.176
+      },
+      "V8.GC_MC_BACKGROUND_EVACUATE_COPY": {
+        "count": 13,
+        "ms": 6.704000000000001,
+        "maxMs": 2.592
+      },
+      "V8.GC_MC_BACKGROUND_EVACUATE_UPDATE_POINTERS": {
+        "count": 13,
+        "ms": 0.592,
+        "maxMs": 0.086
+      },
+      "V8.GC_HEAP_EXTERNAL_WEAK_GLOBAL_HANDLES": {
+        "count": 1,
+        "ms": 0.005,
+        "maxMs": 0.005
+      },
+      "V8.GCPhantomHandleProcessingCallback": {
+        "count": 1,
+        "ms": 0.003,
+        "maxMs": 0.003
+      },
+      "V8.GC_HEAP_EXTERNAL_SECOND_PASS_CALLBACKS": {
+        "count": 1,
+        "ms": 0.001,
+        "maxMs": 0.001
+      },
+      "V8.GC_MINOR_MS_SWEEP": {
+        "count": 1,
+        "ms": 0.001,
+        "maxMs": 0.001
+      },
+      "V8.GC_YOUNG_ARRAY_BUFFER_SWEEP": {
+        "count": 1,
+        "ms": 0.009,
+        "maxMs": 0.009
+      }
+    }
+  },
+  "topAllocators": [],
+  "topSelfTime": [],
+  "serverTickP99Ms": 1.277843000003486
+}

@@ -66,6 +66,11 @@ export const ServerConfigSchema = z.object({
   MAX_ROOMS: int(20, 1, 1000),
   MAX_PLAYERS_PER_ROOM: int(8, 1, 64),
   MAX_BODY_BYTES: int(4096, 64, 1_048_576),
+  /** Busy-wait window before each tick deadline (0 = pure timers). See docs/lab-07.md. */
+  TICK_SPIN_MS: z.preprocess(
+    unset,
+    z.coerce.number().min(0).max(10).default(2),
+  ),
   MAX_PAYLOAD_BYTES: int(2048, 64, 1_048_576),
   JOIN_TIMEOUT_MS: int(5000, 10, 120_000),
   HEARTBEAT_MS: int(15_000, 10, 120_000),
