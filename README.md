@@ -7,11 +7,12 @@
 ```text
 client/    Vite-застосунок (canvas, asset loader, lobby, чат)      — Lab 01–03, 04
 server/    Node.js: HTTP, WebSocket, rooms, match logs             — Lab 04
+shared/    симуляція, протокол (zod), кодеки — код обох сторін      — Lab 05–06
 docs/      звіти по лабораторних, графіки, логи експериментів
-scripts/   dev-скрипт і генератор SVG-графіків для вимірювань
+scripts/   dev-скрипт, headless-стенд мережі, SVG-графіки
 ```
 
-(`shared/` з'являється в Lab 05, див. відповідні звіти.)
+Весь код — TypeScript під `strict` (Lab 06). Node 22 запускає `.ts` без збірки; Vite збирає клієнт; типи перевіряє `npm run typecheck`.
 
 ## Запуск
 
@@ -34,16 +35,20 @@ npm run build && npm start           # http://localhost:3000
 Перевірки перед здачею:
 
 ```bash
+npm run typecheck
 npm run lint
 npm run format:check
 npm test
 npm run build
 ```
 
+Те саме виконує CI (`.github/workflows/ci.yml`).
+
 ## Звіти по лабораторних
 
-| Lab | Тема                                                             | Звіт                                           |
-| --- | ---------------------------------------------------------------- | ---------------------------------------------- |
-| 03  | Promises, async/await, loading screen, lobby                     | [docs/lab-03/README.md](docs/lab-03/README.md) |
-| 04  | Node.js, streams, WebSockets, rooms                              | [docs/lab-04.md](docs/lab-04.md)               |
-| 05  | Authoritative server, prediction, interpolation, binary protocol | [docs/lab-05.md](docs/lab-05.md)               |
+| Lab | Тема                                                              | Звіт                                           |
+| --- | ----------------------------------------------------------------- | ---------------------------------------------- |
+| 03  | Promises, async/await, loading screen, lobby                      | [docs/lab-03/README.md](docs/lab-03/README.md) |
+| 04  | Node.js, streams, WebSockets, rooms                               | [docs/lab-04.md](docs/lab-04.md)               |
+| 05  | Authoritative server, prediction, interpolation, binary protocol  | [docs/lab-05.md](docs/lab-05.md)               |
+| 06  | TypeScript: strict, zod-протокол, типізовані події, branded types | [docs/lab-06.md](docs/lab-06.md)               |

@@ -4,13 +4,17 @@
   "version": "5.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.js",
-    "./sim": "./src/sim/index.js",
-    "./codec": "./src/codec/index.js",
-    "./protocol": "./src/protocol/index.js",
-    "./net": "./src/net/latency.js"
+    ".": "./src/index.ts",
+    "./sim": "./src/sim/index.ts",
+    "./codec": "./src/codec/index.ts",
+    "./protocol": "./src/protocol/index.ts",
+    "./net": "./src/net/latency.ts"
   },
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\""
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
   }
 }
