@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="380" viewBox="0 0 760 380" font-family="system-ui, sans-serif">
+<rect width="760" height="380" fill="#ffffff"/>
+<text x="380" y="18" text-anchor="middle" font-size="14" font-weight="600" fill="#111827">Server RSS while a client downloads a 200 MB replay at 20 MB/s</text>
+<line x1="72" y1="328" x2="736" y2="328" stroke="#e5e7eb"/>
+<text x="64" y="332" text-anchor="end" font-size="11" fill="#4b5563">0</text>
+<line x1="72" y1="271.2" x2="736" y2="271.2" stroke="#e5e7eb"/>
+<text x="64" y="275.2" text-anchor="end" font-size="11" fill="#4b5563">100</text>
+<line x1="72" y1="214.39999999999998" x2="736" y2="214.39999999999998" stroke="#e5e7eb"/>
+<text x="64" y="218.39999999999998" text-anchor="end" font-size="11" fill="#4b5563">200</text>
+<line x1="72" y1="157.6" x2="736" y2="157.6" stroke="#e5e7eb"/>
+<text x="64" y="161.6" text-anchor="end" font-size="11" fill="#4b5563">300</text>
+<line x1="72" y1="100.79999999999998" x2="736" y2="100.79999999999998" stroke="#e5e7eb"/>
+<text x="64" y="104.79999999999998" text-anchor="end" font-size="11" fill="#4b5563">400</text>
+<line x1="72" y1="44" x2="736" y2="44" stroke="#e5e7eb"/>
+<text x="64" y="48" text-anchor="end" font-size="11" fill="#4b5563">500</text>
+<text x="72" y="346" text-anchor="middle" font-size="11" fill="#4b5563">0</text>
+<text x="204.8" y="346" text-anchor="middle" font-size="11" fill="#4b5563">2.1</text>
+<text x="337.6" y="346" text-anchor="middle" font-size="11" fill="#4b5563">4.1</text>
+<text x="470.40000000000003" y="346" text-anchor="middle" font-size="11" fill="#4b5563">6.2</text>
+<text x="603.2" y="346" text-anchor="middle" font-size="11" fill="#4b5563">8.3</text>
+<text x="736" y="346" text-anchor="middle" font-size="11" fill="#4b5563">10.3</text>
+<line x1="72" y1="44" x2="72" y2="328" stroke="#9ca3af"/>
+<line x1="72" y1="328" x2="736" y2="328" stroke="#9ca3af"/>
+<path d="M72.0,288.5 L89.4,282.7 L105.7,281.1 L121.8,281.1 L138.0,279.9 L154.2,277.3 L170.8,276.6 L187.0,276.6 L203.3,276.6 L219.4,276.6 L235.6,273.2 L252.2,270.7 L268.4,270.7 L284.6,270.7 L300.7,270.7 L316.9,270.7 L333.4,270.7 L349.6,270.7 L365.7,270.7 L381.9,270.7 L398.0,270.7 L414.2,270.7 L430.4,270.7 L446.5,270.7 L462.7,269.1 L478.8,269.1 L495.0,269.1 L511.1,269.1 L527.3,269.1 L543.5,269.1 L559.6,269.1 L576.4,270.7 L592.6,270.7 L608.8,273.7 L625.0,273.7 L641.2,276.6 L657.3,276.5 L673.5,276.4 L689.7,276.4 L705.9,275.1 L722.1,275.1" fill="none" stroke="#16a34a" stroke-width="2"/>
+<rect x="84" y="16" width="14" height="4" fill="#16a34a"/>
+<text x="104" y="22" font-size="12" fill="#111827">pipeline() streaming</text>
+<path d="M72.0,287.9 L89.0,173.4 L105.2,173.4 L121.4,173.4 L137.6,173.4 L153.8,173.4 L170.0,173.4 L186.3,173.3 L202.5,173.3 L218.7,173.3 L234.8,173.3 L251.1,173.3 L267.3,173.3 L283.4,173.3 L299.6,173.3 L315.7,173.3 L331.9,173.3 L348.0,173.3 L364.2,173.3 L380.4,173.3 L396.6,173.2 L412.7,173.2 L428.9,173.2 L445.0,173.2 L461.2,173.2 L477.3,173.2 L493.5,173.2 L509.6,173.2 L525.8,173.2 L542.0,173.2 L558.1,173.2 L574.3,173.2 L590.5,173.2 L606.7,173.2 L622.8,173.2 L639.0,173.2 L655.2,173.2 L671.3,173.2 L687.5,173.2 L703.7,173.2 L719.8,173.2 L736.0,173.2" fill="none" stroke="#dc2626" stroke-width="2"/>
+<rect x="274" y="16" width="14" height="4" fill="#dc2626"/>
+<text x="294" y="22" font-size="12" fill="#111827">readFile() buffered (naive)</text>
+<text x="404" y="370" text-anchor="middle" font-size="12" fill="#374151">seconds</text>
+<text transform="translate(16 186) rotate(-90)" text-anchor="middle" font-size="12" fill="#374151">RSS (MB)</text>
+</svg>

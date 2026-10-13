@@ -1,0 +1,22 @@
+### 1. EventEmitter 'error' without a listener
+exit code: 1
+<project>/[eval1]:5
+      socket.emit("error", new Error("ECONNRESET: peer reset the connection"));
+Error: ECONNRESET: peer reset the connection
+    at <project>/[eval1]:5:28
+Emitted 'error' event at:
+    at <project>/[eval1]:5:14
+
+### 2. Unhandled promise rejection in an async handler
+exit code: 1
+<project>/[eval1]:2
+      async function handler() { throw new Error("room lookup failed"); }
+Error: room lookup failed
+    at handler (<project>/[eval1]:2:40)
+    at <project>/[eval1]:3:7
+
+### 3. FIX: error listener + .catch() -> the process keeps running
+exit code: 0
+handled: ECONNRESET: peer reset the connection
+handled: room lookup failed
+still alive after 100 ms

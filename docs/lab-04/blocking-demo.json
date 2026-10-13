@@ -1,0 +1,19 @@
+{
+  "baseline": {
+    "messages": 79,
+    "p50Ms": 0.9,
+    "p99Ms": 2.8,
+    "maxMs": 2.8,
+    "blockResult": null
+  },
+  "withBlock300ms": {
+    "messages": 79,
+    "p50Ms": 0.9,
+    "p99Ms": 262.3,
+    "maxMs": 262.3,
+    "blockResult": {
+      "ok": true,
+      "blockedMs": 300
+    }
+  }
+}
