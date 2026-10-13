@@ -49,9 +49,10 @@ npm run build
 
 ## Звіти по лабораторних
 
-| Lab | Тема                                                              | Звіт                                           |
-| --- | ----------------------------------------------------------------- | ---------------------------------------------- |
-| 03  | Promises, async/await, loading screen, lobby                      | [docs/lab-03/README.md](docs/lab-03/README.md) |
-| 04  | Node.js, streams, WebSockets, rooms                               | [docs/lab-04.md](docs/lab-04.md)               |
-| 05  | Authoritative server, prediction, interpolation, binary protocol  | [docs/lab-05.md](docs/lab-05.md)               |
-| 06  | TypeScript: strict, zod-протокол, типізовані події, branded types | [docs/lab-06.md](docs/lab-06.md)               |
+| Lab | Тема                                                                   | Звіт                                           |
+| --- | ---------------------------------------------------------------------- | ---------------------------------------------- |
+| 03  | Promises, async/await, loading screen, lobby                           | [docs/lab-03/README.md](docs/lab-03/README.md) |
+| 04  | Node.js, streams, WebSockets, rooms                                    | [docs/lab-04.md](docs/lab-04.md)               |
+| 05  | Authoritative server, prediction, interpolation, binary protocol       | [docs/lab-05.md](docs/lab-05.md)               |
+| 06  | TypeScript: strict, zod-протокол, типізовані події, branded types      | [docs/lab-06.md](docs/lab-06.md)               |
+| 07  | Тести, V8/GC, профілювання, боти, навантаження (ємність ≈ 768 гравців) | [docs/lab-07.md](docs/lab-07.md)               |
