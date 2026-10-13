@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import { LOG_LEVELS } from "./logger.ts";
 
 export class ConfigError extends Error {
   readonly problems: readonly string[];
@@ -57,7 +58,40 @@ const path = (fallback: string) =>
   );
 
 /** The single description of the server's settings: names, defaults and limits. */
+const csv = (fallback: string) =>
+  z.preprocess(
+    unset,
+    z
+      .string()
+      .default(fallback)
+      .transform((raw) =>
+        raw
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item !== ""),
+      ),
+  );
+
 export const ServerConfigSchema = z.object({
+  NODE_ENV: z.preprocess(
+    unset,
+    z.enum(["development", "production", "test"]).default("development"),
+  ),
+  LOG_LEVEL: z.preprocess(unset, z.enum(LOG_LEVELS).default("info")),
+  /**
+   * Browser origins allowed to open a WebSocket (comma-separated, e.g.
+   * "https://fpv.example.com"). Empty = same-origin only (the Origin host must
+   * equal the Host header). Requests with no Origin header (non-browser clients) are allowed.
+   */
+  ALLOWED_ORIGINS: csv(""),
+  /** Open WebSocket connections allowed per client IP. */
+  MAX_CONNECTIONS_PER_IP: int(20, 1, 100_000),
+  /** Trust X-Forwarded-For (only behind a proxy you control: it is client-controlled otherwise). */
+  TRUST_PROXY: bool(false),
+  /** Stamped into /health and /metrics; the Docker build sets it from the git commit. */
+  /** If set, GET /metrics requires `Authorization: Bearer <token>`. */
+  METRICS_TOKEN: z.preprocess(unset, z.string().optional()),
+  GIT_SHA: z.preprocess(unset, z.string().default("dev")),
   PORT: int(3000, 0, 65535),
   HOST: z.preprocess(unset, z.string().default("0.0.0.0")),
   LOG_DIR: path("./logs"),

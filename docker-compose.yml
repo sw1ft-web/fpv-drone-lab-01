@@ -1,0 +1,15 @@
+services:
+  fpv:
+    build:
+      context: .
+      args:
+        GIT_SHA: ${GIT_SHA:-dev}
+    image: fpv-drone:local
+    ports:
+      - "3000:3000"
+    environment:
+      LOG_LEVEL: info
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+    restart: unless-stopped
+    stop_grace_period: 15s

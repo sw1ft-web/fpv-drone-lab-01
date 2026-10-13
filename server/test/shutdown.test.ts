@@ -61,6 +61,8 @@ test("SIGTERM: closes sockets with 1001, flushes the match log and exits 0", asy
     child.kill("SIGTERM");
     const closed = await client.waitForClose(3000);
     assert.equal(closed.code, 1001);
+    const notice = client.messages.find((m) => m.type === "shutdown");
+    assert.ok(notice, "clients are told before the socket closes");
 
     const result = await exited;
     assert.equal(result.code, 0);

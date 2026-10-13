@@ -353,3 +353,12 @@ window.lab03 = {
   },
   refreshRooms: () => lobby.refresh(),
 };
+
+// PWA: cache the static shell (see public/sw.js). Production builds only, so Vite HMR is never intercepted.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch((error: unknown) => {
+      console.warn("service worker registration failed", error);
+    });
+  });
+}

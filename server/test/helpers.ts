@@ -86,9 +86,12 @@ const is =
 /** A tiny WebSocket test client that records every message and the close event. */
 export async function connect(
   url: string,
-  { open = true }: { open?: boolean } = {},
+  {
+    open = true,
+    headers = {},
+  }: { open?: boolean; headers?: Record<string, string> } = {},
 ): Promise<TestClient> {
-  const socket = new WebSocket(url);
+  const socket = new WebSocket(url, { headers });
   const messages: ServerMessage[] = [];
   const waiters: Waiter[] = [];
   let closed: CloseInfo | null = null;
