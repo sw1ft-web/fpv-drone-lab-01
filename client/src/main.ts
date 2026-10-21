@@ -57,6 +57,7 @@ const hudRoot = query(page, "#hud", HTMLElement);
 const failureRoot = query(page, "#failureGallery", HTMLElement);
 const chatRoot = query(page, "#chat", HTMLElement);
 const netgraphRoot = query(page, "#netgraph", HTMLElement);
+const leaveRoomButton = query(page, "#leaveRoom", HTMLButtonElement);
 
 const stepsEl = query(page, "#steps", HTMLElement);
 const framesEl = query(page, "#frames", HTMLElement);
@@ -205,6 +206,33 @@ async function onJoined({
   startGame(joined, { room: welcome.room, playerName });
 }
 
+/** Leave the current room: close the socket (no auto-reconnect), tear the game down, return to the lobby. */
+async function leaveRoom(): Promise<void> {
+  if (!session) return;
+  const leaving = session;
+  session = null;
+  leaving.connection.close(1000, "left the room");
+  loop?.stop();
+  loop = null;
+  detachHud?.();
+  detachHud = null;
+  detachEffects?.();
+  detachEffects = null;
+  game?.destroy();
+  game = null;
+  netgraph = null;
+  netgraphRoot.hidden = true;
+  audio.detach();
+  chat?.destroy();
+  chat = null;
+  hudRoot.hidden = true;
+  renderLoading({ label: "You left the room" });
+  lobbyView.show();
+  await lobby.show();
+}
+
+leaveRoomButton.addEventListener("click", () => void leaveRoom());
+
 function startGame(
   { connection, welcome }: Joined,
   { room, playerName }: { room: RoomInfo; playerName: string },
@@ -308,6 +336,7 @@ window.addEventListener("keydown", (event) => {
     event.target instanceof HTMLElement && event.target.tagName === "INPUT";
   if (typing) return;
   if (event.code === "KeyN" && netgraph) netgraph.toggle();
+  if (event.code === "Escape" && session) void leaveRoom();
   if (event.code === "Enter" && chat) {
     event.preventDefault();
     chat.focusInput();

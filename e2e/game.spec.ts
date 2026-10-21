@@ -74,3 +74,22 @@ test("the server reports health and stats", async ({ request }) => {
   const stats = await request.get("/api/stats");
   expect(await stats.json()).toMatchObject({ rooms: expect.any(Number) });
 });
+
+test("the Leave room button returns to the lobby and the room sees the pilot go", async ({
+  browser,
+}) => {
+  const aliceContext = await browser.newContext();
+  const bobContext = await browser.newContext();
+  const alice = await join(await aliceContext.newPage(), "Alice", "night-run");
+  const bob = await join(await bobContext.newPage(), "Bob", "night-run");
+  await expect(bob.page.locator("#roster")).toContainText("Alice");
+
+  await alice.page.locator("#leaveRoom").click();
+  await expect(alice.page.locator("#lobby")).toBeVisible();
+  await expect(alice.page.locator("#hud")).toBeHidden();
+  await expect(bob.page.locator("#roster")).not.toContainText("Alice");
+
+  // Escape does the same thing.
+  await bob.page.keyboard.press("Escape");
+  await expect(bob.page.locator("#lobby")).toBeVisible();
+});
